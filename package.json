@@ -23,6 +23,8 @@
 		"typescript": "^4.3.4"
 	},
 	"dependencies": {
+		"dungeoneer": "github:mipearson/dungeoneer#mp-fix-ts-bindings",
+		"mrpas": "^2.0.0",
 		"phaser": "^3.55.2"
 	},
 	"parcelCleanPaths": [

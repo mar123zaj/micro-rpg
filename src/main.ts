@@ -1,18 +1,20 @@
-import Phaser from 'phaser'
+import Phaser from 'phaser';
+import ReferenceScene from './scenes/ReferenceScene';
+import DungeonScene from './scenes/DungeonScene';
+import InfoScene from './scenes/InfoScene';
+// import SceneWatcherPlugin from "phaser-plugin-scene-watcher";
 
-import HelloWorldScene from './scenes/HelloWorldScene'
-
-const config: Phaser.Types.Core.GameConfig = {
-	type: Phaser.AUTO,
-	width: 800,
-	height: 600,
-	physics: {
-		default: 'arcade',
-		arcade: {
-			gravity: { y: 0 }
-		}
-	},
-	scene: [HelloWorldScene]
-}
-
-export default new Phaser.Game(config)
+new Phaser.Game({
+  type: Phaser.WEBGL,
+  width: window.innerWidth,
+  height: window.innerHeight,
+  render: { pixelArt: true },
+  physics: { default: 'arcade', arcade: { debug: false, gravity: { y: 0 } } },
+  scene: [DungeonScene, InfoScene, ReferenceScene],
+  scale: {
+    mode: Phaser.Scale.RESIZE,
+  },
+  // plugins: {
+  //   global: [{ key: "SceneWatcher", plugin: SceneWatcherPlugin, start: true }]
+  // }
+});
