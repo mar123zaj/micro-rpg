@@ -1,8 +1,8 @@
-//import RogueEnvironment from '../../assets/fongoose/RogueEnvironment16x16-extruded.png';
-import RogueEnvironment from '../../assets/fongoose/micro_tileset.png';
-import RoguePlayer from '../../assets/fongoose/barbarian.png';
-import RogueSlime from '../../assets/fongoose/RogueSlime32x32.png';
-import RogueItems from '../../assets/fongoose/RogueItems16x16.png';
+import Environment from '../../assets/tilesets/micro_tileset.png';
+import Barbarian from '../../assets/characters/playable/barbarian.png';
+import GreenSlime from '../../assets/enemies/GreenSlime.png';
+import RedSlime from '../../assets/enemies/RedSlime.png';
+// import RogueItems from '../../assets/fongoose/RogueItems16x16.png';
 
 import Util from '../../assets/Util.png';
 
@@ -30,7 +30,7 @@ type GraphicSet = {
   spacing?: number;
 };
 
-type AnimSet = GraphicSet & {
+export type AnimSet = GraphicSet & {
   animations: { [k: string]: AnimConfig };
 };
 
@@ -40,7 +40,7 @@ const environment = {
   height: 8,
   // margin: 1,
   // spacing: 2,
-  file: RogueEnvironment,
+  file: Environment,
   indices: {
     floor: {
       outer: [0x05, 0x05, 0x05, 0x15, 0x07, 0x17],
@@ -77,11 +77,11 @@ const environment = {
   },
 };
 
-const player: AnimSet = {
+const barbarian: AnimSet = {
   name: 'player',
   width: 20,
   height: 20,
-  file: RoguePlayer,
+  file: Barbarian,
   animations: {
     idle: {
       key: 'playerIdle',
@@ -138,26 +138,26 @@ const player: AnimSet = {
   },
 };
 
-const slime: AnimSet = {
-  name: 'slime',
+const greenSlime: AnimSet = {
+  name: 'greenSlime',
   width: 32,
   height: 32,
-  file: RogueSlime,
+  file: GreenSlime,
   animations: {
     idle: {
-      key: 'slimeIdle',
+      key: 'greenslimeIdle',
       frames: { start: 0, end: 5 },
       frameRate: 6,
       repeat: -1,
     },
     move: {
-      key: 'slimeMove',
+      key: 'greenslimeMove',
       frames: { start: 8, end: 14 },
       frameRate: 8,
       repeat: -1,
     },
     death: {
-      key: 'slimeDeath',
+      key: 'greenslimeDeath',
       frames: { start: 32, end: 38 },
       frameRate: 16,
       hideOnComplete: true,
@@ -165,12 +165,39 @@ const slime: AnimSet = {
   },
 };
 
-const items = {
-  name: 'items',
-  width: 16,
-  height: 16,
-  file: RogueItems,
+const redSlime: AnimSet = {
+  name: 'redSlime',
+  width: 32,
+  height: 32,
+  file: RedSlime,
+  animations: {
+    idle: {
+      key: 'redslimeIdle',
+      frames: { start: 0, end: 5 },
+      frameRate: 6,
+      repeat: -1,
+    },
+    move: {
+      key: 'redslimeMove',
+      frames: { start: 8, end: 14 },
+      frameRate: 8,
+      repeat: -1,
+    },
+    death: {
+      key: 'redslimeDeath',
+      frames: { start: 32, end: 38 },
+      frameRate: 16,
+      hideOnComplete: true,
+    },
+  },
 };
+
+// const items = {
+//   name: 'items',
+//   width: 16,
+//   height: 16,
+//   file: RogueItems,
+// };
 
 const util = {
   name: 'util',
@@ -184,8 +211,9 @@ const util = {
 
 export default {
   environment,
-  player,
-  slime,
-  items,
+  player: barbarian,
+  greenSlime,
+  redSlime,
+  // items,
   util,
 };

@@ -26,9 +26,13 @@ export default class DungeonScene extends Phaser.Scene {
       frameHeight: Graphics.player.height,
       frameWidth: Graphics.player.width,
     });
-    this.load.spritesheet(Graphics.slime.name, Graphics.slime.file, {
-      frameHeight: Graphics.slime.height,
-      frameWidth: Graphics.slime.width,
+    this.load.spritesheet(Graphics.greenSlime.name, Graphics.greenSlime.file, {
+      frameHeight: Graphics.greenSlime.height,
+      frameWidth: Graphics.greenSlime.width,
+    });
+    this.load.spritesheet(Graphics.redSlime.name, Graphics.redSlime.file, {
+      frameHeight: Graphics.redSlime.height,
+      frameWidth: Graphics.redSlime.width,
     });
   }
 
@@ -88,12 +92,21 @@ export default class DungeonScene extends Phaser.Scene {
       }
     });
 
-    // TODO
-    Object.values(Graphics.slime.animations).forEach((anim) => {
+    // TODO: move this parts to the class representative's static methods
+    Object.values(Graphics.greenSlime.animations).forEach((anim) => {
       if (!this.anims.get(anim.key)) {
         this.anims.create({
           ...anim,
-          frames: this.anims.generateFrameNumbers(Graphics.slime.name, anim.frames),
+          frames: this.anims.generateFrameNumbers(Graphics.greenSlime.name, anim.frames),
+        });
+      }
+    });
+
+    Object.values(Graphics.redSlime.animations).forEach((anim) => {
+      if (!this.anims.get(anim.key)) {
+        this.anims.create({
+          ...anim,
+          frames: this.anims.generateFrameNumbers(Graphics.redSlime.name, anim.frames),
         });
       }
     });

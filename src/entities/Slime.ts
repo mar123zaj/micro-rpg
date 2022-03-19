@@ -1,5 +1,5 @@
-import Phaser from "phaser";
-import Graphics from "../assets/Graphics";
+import Phaser from 'phaser';
+import Graphics, { AnimSet } from '../assets/Graphics';
 
 const speed = 20;
 
@@ -7,12 +7,17 @@ export default class Slime {
   public readonly sprite: Phaser.Physics.Arcade.Sprite;
   private readonly body: Phaser.Physics.Arcade.Body;
   private nextAction: number;
+  private animSet: AnimSet;
 
   constructor(x: number, y: number, scene: Phaser.Scene) {
-    this.sprite = scene.physics.add.sprite(x, y, Graphics.slime.name, 0);
+    const chance = Math.random();
+
+    this.animSet = chance < 0.8 ? Graphics.greenSlime : Graphics.redSlime;
+
+    this.sprite = scene.physics.add.sprite(x, y, this.animSet.name, 0);
     this.sprite.setSize(12, 10);
     this.sprite.setOffset(10, 14);
-    this.sprite.anims.play(Graphics.slime.animations.idle.key);
+    this.sprite.anims.play(this.animSet.animations.idle.key);
     this.sprite.setDepth(10);
 
     this.body = <Phaser.Physics.Arcade.Body>this.sprite.body;
@@ -21,16 +26,16 @@ export default class Slime {
     this.body.setImmovable(true);
   }
 
-  update(time: number) {
+  update(time: number): void {
     if (time < this.nextAction) {
       return;
     }
 
     if (Phaser.Math.Between(0, 1) === 0) {
       this.body.setVelocity(0);
-      this.sprite.anims.play(Graphics.slime.animations.idle.key, true);
+      this.sprite.anims.play(this.animSet.animations.idle.key, true);
     } else {
-      this.sprite.anims.play(Graphics.slime.animations.move.key, true);
+      this.sprite.anims.play(this.animSet.animations.move.key, true);
       const direction = Phaser.Math.Between(0, 3);
       this.body.setVelocity(0);
 
@@ -43,15 +48,15 @@ export default class Slime {
       } else if (!this.body.blocked.down && direction <= 3) {
         this.body.setVelocityY(speed);
       } else {
-        console.log(`Couldn't find direction for slime: ${direction}`);
+        console.log(`Couldn't find direction for greenSlime: ${direction}`);
       }
     }
 
     this.nextAction = time + Phaser.Math.Between(1000, 3000);
   }
 
-  kill() {
-    this.sprite.anims.play(Graphics.slime.animations.death.key, false);
+  kill(): void {
+    this.sprite.anims.play(this.animSet.animations.death.key, false);
     this.sprite.disableBody();
   }
 }

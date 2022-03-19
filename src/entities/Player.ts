@@ -104,9 +104,7 @@ export default class Player {
   }
 
   stagger(): void {
-    console.log('stagger');
     if (this.time > this.staggerUntil) {
-      console.log('stagger in if');
       this.staggered = true;
       // TODO
       this.scene.cameras.main.shake(150, 0.001);
@@ -139,7 +137,6 @@ export default class Player {
       this.flashEmitter.start();
       // this.sprite.setBlendMode(Phaser.BlendModes.MULTIPLY);
     }
-    console.log(`flipX ${this.sprite.flipX}`);
     this.weapon.setPosition(this.sprite.flipX ? this.sprite.x - 4 : this.sprite.x + 4, this.sprite.y + 2);
 
     if (time < this.attackUntil || time < this.staggerUntil) {
