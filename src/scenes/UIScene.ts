@@ -5,7 +5,7 @@ import Skill3 from '../../assets/ui/icons/button3.png';
 import Fonts from '../assets/Fonts';
 import eventsCenter from '../EventsCenter';
 import { EventsEnum } from '../enums/events.enum';
-import { SkillsEnum } from '../enums/skills.enum';
+import { Skill } from '../enums/skills.enum';
 
 interface Keys {
   ONE: Phaser.Input.Keyboard.Key;
@@ -28,7 +28,6 @@ export default class UIScene extends Phaser.Scene {
     this.load.image('skill1', Skill1);
     this.load.image('skill2', Skill2);
     this.load.image('skill3', Skill3);
-    this.load.image('skill3', Skill3);
     this.load.bitmapFont('default', ...Fonts.default);
   }
 
@@ -45,29 +44,45 @@ export default class UIScene extends Phaser.Scene {
     eventsCenter.on(EventsEnum.TURN_OFF_HIGHLIGHT_SKILL_BUTTON, this.turnOffHighlightSkillButtonHandler, this);
   }
 
-  turnOnHighlightSkillButtonHandler({ skill }: { skill: SkillsEnum }): void {
-    switch (skill) {
-      case SkillsEnum.ONE:
+  private turnOnHighlightSkillButtonHandler(skill: Skill): void {
+    switch (+skill) {
+      case Skill.ONE:
         this.skillButton1.setTint(0x8afbff);
         break;
-      case SkillsEnum.TWO:
+      case Skill.TWO:
         this.skillButton2.setTint(0x8afbff);
         break;
-      case SkillsEnum.THREE:
+      case Skill.THREE:
         this.skillButton3.setTint(0x8afbff);
     }
   }
 
-  turnOffHighlightSkillButtonHandler({ skill }: { skill: SkillsEnum }): void {
-    switch (skill) {
-      case SkillsEnum.ONE:
+  private turnOffHighlightSkillButtonHandler(skill: Skill): void {
+    switch (+skill) {
+      case Skill.ONE:
         this.skillButton1.setTint(0xffffff);
         break;
-      case SkillsEnum.TWO:
+      case Skill.TWO:
         this.skillButton2.setTint(0xffffff);
         break;
-      case SkillsEnum.THREE:
+      case Skill.THREE:
         this.skillButton3.setTint(0xffffff);
     }
+  }
+
+  static skillKeyPressHandler(skill: Skill, keys: Set<string>): (event: KeyboardEvent) => void {
+    return function (event): void {
+      if (!keys.has(event.code)) {
+        keys.add(event.code);
+        eventsCenter.emit(EventsEnum.TURN_ON_HIGHLIGHT_SKILL_BUTTON, skill);
+      }
+    };
+  }
+
+  static skillKeyReleaseHandler(skill: Skill, keys: Set<string>): (event: KeyboardEvent) => void {
+    return function (event): void {
+      keys.delete(event.code);
+      eventsCenter.emit(EventsEnum.TURN_OFF_HIGHLIGHT_SKILL_BUTTON, skill);
+    };
   }
 }

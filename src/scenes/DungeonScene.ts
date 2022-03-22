@@ -6,11 +6,11 @@ import Slime from '../entities/Slime';
 import Map from '../entities/Map';
 import eventsCenter from '../EventsCenter';
 import { EventsEnum } from '../enums/events.enum';
-import { SkillsEnum } from '../enums/skills.enum';
+import { Skill } from '../enums/skills.enum';
+import UIScene from './UIScene';
 
 const worldTileHeight = 81;
 const worldTileWidth = 81;
-const keys = new Set();
 export default class DungeonScene extends Phaser.Scene {
   lastX: number;
   lastY: number;
@@ -21,6 +21,7 @@ export default class DungeonScene extends Phaser.Scene {
   tilemap: Phaser.Tilemaps.Tilemap | null;
   roomDebugGraphics?: Phaser.GameObjects.Graphics;
   private swordHitbox: Phaser.Types.Physics.Arcade.GameObjectWithDynamicBody;
+  private keys: Set<string> = new Set();
 
   preload(): void {
     this.load.image(Graphics.environment.name, Graphics.environment.file);
@@ -57,12 +58,12 @@ export default class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    if (this.player!.isAttacking()) {
+    if (this.player.isAttacking()) {
       this.slimes = this.slimes.filter((s) => s != slime);
       slime.kill();
       return false;
     } else {
-      this.player!.stagger();
+      this.player.stagger();
       return true;
     }
   }
@@ -74,7 +75,7 @@ export default class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    if (this.player!.isAttacking()) {
+    if (this.player.isAttacking()) {
       this.slimes = this.slimes.filter((s) => s != slime);
       slime.kill();
       return false;
@@ -140,71 +141,20 @@ export default class DungeonScene extends Phaser.Scene {
       this.physics.add.collider(slime.sprite, map.wallLayer);
     }
 
-    this.input.keyboard.on('keydown-ONE', (event: KeyboardEvent) => {
-      if (!keys.has(event.code)) {
-        keys.add(event.code);
-        this.input.keyboard.emit(`keypress_${event.code}`);
-        this.input.keyboard.emit('keypress', event.code);
-        eventsCenter.emit(EventsEnum.TURN_ON_HIGHLIGHT_SKILL_BUTTON, { skill: SkillsEnum.ONE });
-      }
-    });
+    this.input.keyboard.on('keydown-ONE', UIScene.skillKeyPressHandler(Skill.ONE, this.keys));
+    this.input.keyboard.on('keyup-ONE', UIScene.skillKeyReleaseHandler(Skill.ONE, this.keys));
 
-    this.input.keyboard.on('keyup-ONE', (event) => {
-      keys.delete(event.code);
-      this.input.keyboard.emit(`keyrelease_${event.code}`);
-      this.input.keyboard.emit('keyrelease', event.code);
-      eventsCenter.emit(EventsEnum.TURN_OFF_HIGHLIGHT_SKILL_BUTTON, { skill: SkillsEnum.ONE });
-    });
+    this.input.keyboard.on('keydown-TWO', UIScene.skillKeyPressHandler(Skill.TWO, this.keys));
+    this.input.keyboard.on('keyup-TWO', UIScene.skillKeyReleaseHandler(Skill.TWO, this.keys));
 
-    this.input.keyboard.on('keydown-TWO', (event: KeyboardEvent) => {
-      if (!keys.has(event.code)) {
-        keys.add(event.code);
-        this.input.keyboard.emit(`keypress_${event.code}`);
-        this.input.keyboard.emit('keypress', event.code);
-        eventsCenter.emit(EventsEnum.TURN_ON_HIGHLIGHT_SKILL_BUTTON, { skill: SkillsEnum.TWO });
-      }
-    });
-
-    this.input.keyboard.on('keyup-TWO', (event) => {
-      keys.delete(event.code);
-      this.input.keyboard.emit(`keyrelease_${event.code}`);
-      this.input.keyboard.emit('keyrelease', event.code);
-      eventsCenter.emit(EventsEnum.TURN_OFF_HIGHLIGHT_SKILL_BUTTON, { skill: SkillsEnum.TWO });
-    });
-
-    this.input.keyboard.on('keydown-THREE', (event: KeyboardEvent) => {
-      if (!keys.has(event.code)) {
-        keys.add(event.code);
-        this.input.keyboard.emit(`keypress_${event.code}`);
-        this.input.keyboard.emit('keypress', event.code);
-        eventsCenter.emit(EventsEnum.TURN_ON_HIGHLIGHT_SKILL_BUTTON, { skill: SkillsEnum.THREE });
-      }
-    });
-
-    this.input.keyboard.on('keyup-THREE', (event) => {
-      keys.delete(event.code);
-      this.input.keyboard.emit(`keyrelease_${event.code}`);
-      this.input.keyboard.emit('keyrelease', event.code);
-      eventsCenter.emit(EventsEnum.TURN_OFF_HIGHLIGHT_SKILL_BUTTON, { skill: SkillsEnum.THREE });
-    });
-
-    this.roomDebugGraphics = this.add.graphics({ x: 0, y: 0 });
-    this.roomDebugGraphics.setVisible(false);
-    this.roomDebugGraphics.lineStyle(2, 0xff5500, 0.5);
-    for (const room of map.rooms) {
-      this.roomDebugGraphics.strokeRect(
-        this.tilemap!.tileToWorldX(room.x),
-        this.tilemap!.tileToWorldY(room.y),
-        this.tilemap!.tileToWorldX(room.width),
-        this.tilemap!.tileToWorldY(room.height),
-      );
-    }
+    this.input.keyboard.on('keydown-THREE', UIScene.skillKeyPressHandler(Skill.THREE, this.keys));
+    this.input.keyboard.on('keyup-THREE', UIScene.skillKeyReleaseHandler(Skill.THREE, this.keys));
 
     this.scene.run('ui');
   }
 
   update(time: number, delta: number): void {
-    this.player!.update(time);
+    this.player.update(time);
 
     const camera = this.cameras.main;
 
@@ -213,17 +163,17 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     const player = new Phaser.Math.Vector2({
-      x: this.tilemap!.worldToTileX(this.player!.sprite.body.x),
-      y: this.tilemap!.worldToTileY(this.player!.sprite.body.y),
+      x: this.tilemap.worldToTileX(this.player.sprite.body.x),
+      y: this.tilemap.worldToTileY(this.player.sprite.body.y),
     });
 
     const bounds = new Phaser.Geom.Rectangle(
-      this.tilemap!.worldToTileX(camera.worldView.x) - 1,
-      this.tilemap!.worldToTileY(camera.worldView.y) - 1,
-      this.tilemap!.worldToTileX(camera.worldView.width) + 2,
-      this.tilemap!.worldToTileX(camera.worldView.height) + 2,
+      this.tilemap.worldToTileX(camera.worldView.x) - 1,
+      this.tilemap.worldToTileY(camera.worldView.y) - 1,
+      this.tilemap.worldToTileX(camera.worldView.width) + 2,
+      this.tilemap.worldToTileX(camera.worldView.height) + 2,
     );
 
-    this.fov!.update(player, bounds, delta);
+    this.fov.update(player, bounds, delta);
   }
 }

@@ -7,7 +7,7 @@ new Phaser.Game({
   width: window.innerWidth,
   height: window.innerHeight,
   render: { pixelArt: true },
-  physics: { default: 'arcade', arcade: { debug: true, gravity: { y: 0 } } },
+  physics: { default: 'arcade', arcade: { debug: false, gravity: { y: 0 } } },
   scene: [DungeonScene, UIScene],
   scale: {
     mode: Phaser.Scale.RESIZE,
