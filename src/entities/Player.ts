@@ -166,15 +166,12 @@ export default class Player {
 
     if (left || right) {
       moveAnim = Graphics.player.animations.walk.key;
-      attackAnim = Graphics.player.animations.slash.key;
       this.facingUp = false;
     } else if (down) {
       moveAnim = Graphics.player.animations.walk.key;
-      attackAnim = Graphics.player.animations.slashDown.key;
       this.facingUp = false;
     } else if (up) {
       moveAnim = Graphics.player.animations.walkBack.key;
-      attackAnim = Graphics.player.animations.slashUp.key;
       this.facingUp = true;
     } else if (this.facingUp) {
       moveAnim = Graphics.player.animations.idleBack.key;
@@ -185,16 +182,9 @@ export default class Player {
     if (keys.space.isDown && time > this.attackLockedUntil) {
       this.attackUntil = time + attackDuration;
       this.attackLockedUntil = time + attackDuration + attackCooldown;
-      //this.body.velocity.normalize().scale(attackSpeed);
       attackAnim = Graphics.player.animations.attack.key;
       this.sprite.anims.play(attackAnim, true);
 
-      // this.sprite.setSize(12, 12);
-      // setInterval(() => {
-      //   this.sprite.setSize(4, 4);
-      // }, attackDuration);
-      //this.emitter.start();
-      //this.sprite.setBlendMode(Phaser.BlendModes.ADD);
       this.attacking = true;
       this.body.setVelocity(0, 0);
       return;

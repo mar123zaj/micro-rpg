@@ -107,33 +107,10 @@ const barbarian: AnimSet = {
       frameRate: 10,
       repeat: -1,
     },
-    slash: {
-      key: 'playerSlash',
-      frames: { frames: [0x1a, 0x1a, 0x1a, 0x1b, 0x1c] },
-      frameRate: 10,
-    },
-    // Ideally attacks should be five frames at 30fps to
-    // align with the attack duration of 165ms
     attack: {
       key: 'playerAttack',
       frames: { frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
-      //frames: { frames: [0x1a, 0x1a, 0x1a, 0x1b, 0x1c] },
       frameRate: 18,
-    },
-    slashUp: {
-      key: 'playerSlashUp',
-      frames: { frames: [0x2e, 0x2e, 0x2e, 0x2f, 0x30] },
-      frameRate: 30,
-    },
-    slashDown: {
-      key: 'playerSlashDown',
-      frames: { frames: [0x24, 0x24, 0x24, 0x25, 0x26] },
-      frameRate: 30,
-    },
-    stagger: {
-      key: 'playerStagger',
-      frames: { frames: [0x38, 0x38, 0x39, 0x3a] },
-      frameRate: 30,
     },
   },
 };
@@ -192,13 +169,6 @@ const redSlime: AnimSet = {
   },
 };
 
-// const items = {
-//   name: 'items',
-//   width: 16,
-//   height: 16,
-//   file: RogueItems,
-// };
-
 const util = {
   name: 'util',
   width: 16,
@@ -214,6 +184,5 @@ export default {
   player: barbarian,
   greenSlime,
   redSlime,
-  // items,
   util,
 };
