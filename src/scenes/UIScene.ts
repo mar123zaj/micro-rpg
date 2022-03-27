@@ -2,19 +2,12 @@ import Phaser from 'phaser';
 import Skill1 from '../../assets/ui/icons/button1.png';
 import Skill2 from '../../assets/ui/icons/button2.png';
 import Skill3 from '../../assets/ui/icons/button3.png';
-import Fonts from '../assets/Fonts';
+import Fonts from '../configs/Fonts';
 import eventsCenter from '../EventsCenter';
 import { EventsEnum } from '../enums/events.enum';
 import { Skill } from '../enums/skills.enum';
 
-interface Keys {
-  ONE: Phaser.Input.Keyboard.Key;
-  TWO: Phaser.Input.Keyboard.Key;
-  THREE: Phaser.Input.Keyboard.Key;
-}
-
 export default class UIScene extends Phaser.Scene {
-  private keys: Keys;
   private skillButton1: Phaser.GameObjects.Image;
   private skillButton2: Phaser.GameObjects.Image;
   private skillButton3: Phaser.GameObjects.Image;

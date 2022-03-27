@@ -2,7 +2,6 @@ import Environment from '../../assets/tilesets/micro_tileset.png';
 import Barbarian from '../../assets/characters/playable/barbarian.png';
 import GreenSlime from '../../assets/enemies/GreenSlime.png';
 import RedSlime from '../../assets/enemies/RedSlime.png';
-// import RogueItems from '../../assets/fongoose/RogueItems16x16.png';
 
 import Util from '../../assets/Util.png';
 
@@ -21,11 +20,11 @@ type AnimConfig = {
   hideOnComplete?: boolean;
 };
 
-type GraphicSet = {
+export type GraphicSet = {
   name: string;
-  width: number;
-  height: number;
   file: string;
+  width?: number;
+  height?: number;
   margin?: number;
   spacing?: number;
 };

@@ -1,4 +1,4 @@
-import Graphics from '../assets/Graphics';
+import Graphics from '../configs/Graphics';
 import Map from '../entities/Map';
 import { Mrpas } from 'mrpas';
 import Phaser from 'phaser';

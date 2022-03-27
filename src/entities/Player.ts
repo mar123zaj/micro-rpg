@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import Graphics from '../assets/Graphics';
+import Graphics from '../configs/Graphics';
 
 const speed = 70;
 const attackSpeed = 500;

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import Graphics from '../assets/Graphics';
+import Graphics from '../configs/Graphics';
 import FOVLayer from '../entities/FOVLayer';
 import Player from '../entities/Player';
 import Slime from '../entities/Slime';

@@ -1,5 +1,5 @@
 import Map from './map';
-import Graphics from '../assets/Graphics';
+import Graphics from '../configs/Graphics';
 
 export enum TileType {
   None,

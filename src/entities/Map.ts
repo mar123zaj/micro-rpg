@@ -1,7 +1,7 @@
 import Dungeoneer from 'dungeoneer';
 import Tile, { TileType } from './Tile';
 import Slime from './Slime';
-import Graphics from '../assets/Graphics';
+import Graphics from '../configs/Graphics';
 import DungeonScene from '../scenes/DungeonScene';
 
 export default class Map {

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import Graphics, { AnimSet } from '../assets/Graphics';
+import Graphics, { AnimSet } from '../configs/Graphics';
 
 const speed = 20;
 
