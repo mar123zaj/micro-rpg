@@ -63,14 +63,14 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   setButtonsPosition(buttons: Phaser.GameObjects.Image[], width: number, height: number): void {
-    buttons.forEach((button, index, buttons) => {
+    buttons.forEach((button, index) => {
       button.setX(width);
       if (index > 0) {
         const previousButtonsHeight = buttons
           .slice(0, index)
           .map((btn) => btn.height)
           .reduce((previousHeight, currentHeight) => previousHeight + currentHeight);
-        console.log(JSON.stringify(previousButtonsHeight, null, 4));
+
         button.setY(height + previousButtonsHeight + this.buttonMargin * index);
       } else {
         button.setY(height);
@@ -97,7 +97,7 @@ export default class MenuScene extends Phaser.Scene {
       } else if (down) {
         this.pointer.setY(this.optionsButton.y);
       } else if (enter) {
-        this.scene.start('DungeonScene');
+        this.scene.start('ClassSelectionScene');
       }
     } else if (this.isPointerOn(this.optionsButton)) {
       if (up) {

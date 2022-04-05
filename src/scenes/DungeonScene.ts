@@ -1,17 +1,17 @@
 import Phaser from 'phaser';
 import Graphics from '../configs/Graphics';
 import FOVLayer from '../entities/FOVLayer';
+import Map from '../entities/Map';
 import Player from '../entities/Player';
 import Slime from '../entities/Slime';
-import Map from '../entities/Map';
-import eventsCenter from '../EventsCenter';
-import { EventsEnum } from '../enums/events.enum';
 import { Skill } from '../enums/skills.enum';
+import { CharacterClass } from './ClassSelectionScene';
 import UIScene from './UIScene';
 
 const worldTileHeight = 81;
 const worldTileWidth = 81;
 export default class DungeonScene extends Phaser.Scene {
+  characterClass: CharacterClass;
   lastX: number;
   lastY: number;
   player: Player | null;
@@ -49,6 +49,10 @@ export default class DungeonScene extends Phaser.Scene {
     this.tilemap = null;
     this.slimes = [];
     this.slimeGroup = null;
+  }
+
+  init(data: { characterClass: CharacterClass }): void {
+    this.characterClass = data.characterClass;
   }
 
   slimePlayerCollide(_: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): boolean {
