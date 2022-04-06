@@ -12,7 +12,7 @@ interface ClassInfoBox {
   text?: Phaser.GameObjects.DynamicBitmapText;
 }
 
-export enum CharacterClass {
+export enum PlayerClass {
   SWORDSMAN,
   ARCHER,
   MAGE,
@@ -132,7 +132,7 @@ export default class ClassSelectionScene extends Phaser.Scene {
         this.selectClassInfoBox(this.archer);
       } else if (enter) {
         console.log('Choose swordsman');
-        this.scene.start('DungeonScene', { playerClass: CharacterClass.SWORDSMAN });
+        this.scene.start('DungeonScene', { playerClass: PlayerClass.SWORDSMAN });
       }
     } else if (this.isSelected(this.archer)) {
       if (left) {
@@ -141,7 +141,7 @@ export default class ClassSelectionScene extends Phaser.Scene {
         this.selectClassInfoBox(this.mage);
       } else if (enter) {
         console.log('Choose archer');
-        this.scene.start('DungeonScene', { playerClass: CharacterClass.ARCHER });
+        this.scene.start('DungeonScene', { playerClass: PlayerClass.ARCHER });
       }
     } else if (this.isSelected(this.mage)) {
       if (left) {
@@ -150,7 +150,7 @@ export default class ClassSelectionScene extends Phaser.Scene {
         this.selectClassInfoBox(this.swordsman);
       } else if (enter) {
         console.log('Choose mage');
-        this.scene.start('DungeonScene', { playerClass: CharacterClass.MAGE });
+        this.scene.start('DungeonScene', { playerClass: PlayerClass.MAGE });
       }
     }
   }

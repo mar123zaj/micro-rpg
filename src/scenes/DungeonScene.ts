@@ -5,13 +5,13 @@ import Map from '../entities/Map';
 import Player from '../entities/Player';
 import Slime from '../entities/Slime';
 import { Skill } from '../enums/skills.enum';
-import { CharacterClass } from './ClassSelectionScene';
+import { PlayerClass } from './ClassSelectionScene';
 import UIScene from './UIScene';
 
 const worldTileHeight = 81;
 const worldTileWidth = 81;
 export default class DungeonScene extends Phaser.Scene {
-  characterClass: CharacterClass;
+  playerClass: PlayerClass;
   lastX: number;
   lastY: number;
   player: Player | null;
@@ -20,15 +20,18 @@ export default class DungeonScene extends Phaser.Scene {
   fov: FOVLayer | null;
   tilemap: Phaser.Tilemaps.Tilemap | null;
   roomDebugGraphics?: Phaser.GameObjects.Graphics;
-  private swordHitbox: Phaser.Types.Physics.Arcade.GameObjectWithDynamicBody;
   private keys: Set<string> = new Set();
 
   preload(): void {
     this.load.image(Graphics.environment.name, Graphics.environment.file);
     this.load.image(Graphics.util.name, Graphics.util.file);
-    this.load.spritesheet(Graphics.player.name, Graphics.player.file, {
-      frameHeight: Graphics.player.height,
-      frameWidth: Graphics.player.width,
+    this.load.spritesheet(Graphics.barbarian.name, Graphics.barbarian.file, {
+      frameHeight: Graphics.barbarian.height,
+      frameWidth: Graphics.barbarian.width,
+    });
+    this.load.spritesheet(Graphics.swordsman.name, Graphics.swordsman.file, {
+      frameHeight: Graphics.swordsman.height,
+      frameWidth: Graphics.swordsman.width,
     });
     this.load.spritesheet(Graphics.greenSlime.name, Graphics.greenSlime.file, {
       frameHeight: Graphics.greenSlime.height,
@@ -51,8 +54,9 @@ export default class DungeonScene extends Phaser.Scene {
     this.slimeGroup = null;
   }
 
-  init(data: { characterClass: CharacterClass }): void {
-    this.characterClass = data.characterClass;
+  init(data: { playerClass: PlayerClass }): void {
+    console.log({ data });
+    this.playerClass = data.playerClass;
   }
 
   slimePlayerCollide(_: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): boolean {
@@ -87,11 +91,20 @@ export default class DungeonScene extends Phaser.Scene {
   }
 
   create(): void {
-    Object.values(Graphics.player.animations).forEach((anim) => {
+    Object.values(Graphics.barbarian.animations).forEach((anim) => {
       if (!this.anims.get(anim.key)) {
         this.anims.create({
           ...anim,
-          frames: this.anims.generateFrameNumbers(Graphics.player.name, anim.frames),
+          frames: this.anims.generateFrameNumbers(Graphics.barbarian.name, anim.frames),
+        });
+      }
+    });
+
+    Object.values(Graphics.swordsman.animations).forEach((anim) => {
+      if (!this.anims.get(anim.key)) {
+        this.anims.create({
+          ...anim,
+          frames: this.anims.generateFrameNumbers(Graphics.swordsman.name, anim.frames),
         });
       }
     });
@@ -120,7 +133,13 @@ export default class DungeonScene extends Phaser.Scene {
 
     this.fov = new FOVLayer(map);
 
-    this.player = new Player(this.tilemap.tileToWorldX(map.startingX), this.tilemap.tileToWorldY(map.startingY), this);
+    console.log({ cc: this.playerClass });
+    this.player = new Player(
+      this.tilemap.tileToWorldX(map.startingX),
+      this.tilemap.tileToWorldY(map.startingY),
+      this,
+      this.playerClass,
+    );
 
     this.slimes = map.slimes;
     this.slimeGroup = this.physics.add.group(this.slimes.map((s) => s.sprite));

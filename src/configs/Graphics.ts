@@ -1,5 +1,6 @@
 import Environment from '../../assets/tilesets/micro_tileset.png';
 import Barbarian from '../../assets/characters/playable/barbarian.png';
+import Swordsman from '../../assets/characters/playable/swordsman.png';
 import GreenSlime from '../../assets/enemies/GreenSlime.png';
 import RedSlime from '../../assets/enemies/RedSlime.png';
 
@@ -77,39 +78,82 @@ const environment = {
 };
 
 const barbarian: AnimSet = {
-  name: 'player',
+  name: 'barbarian',
   width: 20,
   height: 20,
   file: Barbarian,
   animations: {
     idle: {
-      key: 'playerIdle',
+      key: 'barbarianplayerIdle',
       frames: { start: 13, end: 16 },
       frameRate: 6,
       repeat: -1,
     },
     idleBack: {
-      key: 'playerIdleBack',
+      key: 'barbarianplayerIdleBack',
       frames: { start: 13, end: 16 },
       frameRate: 6,
       repeat: -1,
     },
     walk: {
-      key: 'playerWalk',
+      key: 'barbarianplayerWalk',
       frames: { start: 17, end: 20 },
       frameRate: 10,
       repeat: -1,
     },
     walkBack: {
-      key: 'playerWalkBack',
+      key: 'barbarianplayerWalkBack',
       frames: { start: 17, end: 20 },
       frameRate: 10,
       repeat: -1,
     },
     attack: {
-      key: 'playerAttack',
+      key: 'barbarianplayerAttack',
       frames: { frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
       frameRate: 18,
+    },
+  },
+};
+
+const swordsman: AnimSet = {
+  name: 'swordsman',
+  width: 20,
+  height: 16,
+  file: Swordsman,
+  animations: {
+    idle: {
+      key: 'playerIdle',
+      frames: { start: 7, end: 10 },
+      frameRate: 6,
+      repeat: -1,
+    },
+    idleBack: {
+      key: 'playerIdleBack',
+      frames: { start: 7, end: 10 },
+      frameRate: 6,
+      repeat: -1,
+    },
+    walk: {
+      key: 'playerWalk',
+      frames: { start: 11, end: 18 },
+      frameRate: 10,
+      repeat: -1,
+    },
+    walkBack: {
+      key: 'playerWalkBack',
+      frames: { start: 11, end: 18 },
+      frameRate: 10,
+      repeat: -1,
+    },
+    attack: {
+      key: 'playerAttack',
+      frames: { frames: [0, 1, 2, 3, 4, 5, 6] },
+      frameRate: 18,
+    },
+    swordBuff: {
+      key: 'swordBuff',
+      frames: { frames: [0, 3, 4, 19, 20, 21] },
+      frameRate: 10,
     },
   },
 };
@@ -180,7 +224,8 @@ const util = {
 
 export default {
   environment,
-  player: barbarian,
+  barbarian,
+  swordsman,
   greenSlime,
   redSlime,
   util,

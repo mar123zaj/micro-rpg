@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import Graphics from '../configs/Graphics';
+import Graphics, { AnimSet } from '../configs/Graphics';
+import { PlayerClass } from '../scenes/ClassSelectionScene';
 
 const speed = 70;
 const attackSpeed = 500;
@@ -18,10 +19,12 @@ interface Keys {
   a: Phaser.Input.Keyboard.Key;
   s: Phaser.Input.Keyboard.Key;
   d: Phaser.Input.Keyboard.Key;
+  one: Phaser.Input.Keyboard.Key;
 }
 
 export default class Player {
   public sprite: Phaser.Physics.Arcade.Sprite;
+  private animation: AnimSet;
   private keys: Keys;
 
   private attackUntil: number;
@@ -37,12 +40,24 @@ export default class Player {
   private facingUp: boolean;
   weapon: Phaser.GameObjects.Rectangle;
 
-  constructor(x: number, y: number, scene: Phaser.Scene) {
+  constructor(x: number, y: number, scene: Phaser.Scene, playerClass: PlayerClass) {
     this.scene = scene;
-    this.sprite = scene.physics.add.sprite(x, y, Graphics.player.name, 0);
+    console.log({ playerClass });
+    switch (playerClass) {
+      case PlayerClass.SWORDSMAN:
+        this.animation = Graphics.swordsman;
+        break;
+      case PlayerClass.ARCHER:
+        this.animation = Graphics.swordsman;
+        break;
+      case PlayerClass.MAGE:
+        this.animation = Graphics.swordsman;
+        break;
+    }
+    this.sprite = scene.physics.add.sprite(x, y, this.animation.name, 0);
     this.sprite.setSize(4, 4);
-    this.sprite.setOffset(8, 12);
-    this.sprite.anims.play(Graphics.player.animations.idle.key);
+    this.sprite.setOffset(8, 10);
+    this.sprite.anims.play(this.animation.animations.idle.key);
     this.facingUp = false;
     this.sprite.setDepth(5);
 
@@ -56,6 +71,7 @@ export default class Player {
       a: 'a',
       s: 's',
       d: 'd',
+      one: Phaser.Input.Keyboard.KeyCodes.ONE,
     }) as Keys;
 
     this.attackUntil = 0;
@@ -63,7 +79,7 @@ export default class Player {
     this.attacking = false;
     this.staggerUntil = 0;
     this.staggered = false;
-    const particles = scene.add.particles(Graphics.player.name);
+    const particles = scene.add.particles(this.animation.name);
     particles.setDepth(6);
     this.emitter = particles.createEmitter({
       alpha: { start: 0.7, end: 0, ease: 'Cubic.easeOut' },
@@ -93,10 +109,10 @@ export default class Player {
     this.body = <Phaser.Physics.Arcade.Body>this.sprite.body;
     this.time = 0;
 
-    this.weapon = scene.add.rectangle(0, 0, 6, 6); // as any as Phaser.Types.Physics.Arcade.GameObjectWithDynamicBody;
+    this.weapon = scene.add.rectangle(0, 0, 8, 8); // as any as Phaser.Types.Physics.Arcade.GameObjectWithDynamicBody;
     scene.physics.add.existing(this.weapon);
 
-    this.weapon.setPosition(x + 2, y + 2);
+    this.weapon.setPosition(x + 4, y + 4);
   }
 
   isAttacking(): boolean {
@@ -133,7 +149,7 @@ export default class Player {
         this.body.setVelocityX(-staggerSpeed);
         this.sprite.setFlipX(false);
       }
-      //this.sprite.anims.play(Graphics.player.animations.stagger.key);
+      //this.sprite.anims.play(this.animation.animations.stagger.key);
       this.flashEmitter.start();
       // this.sprite.setBlendMode(Phaser.BlendModes.MULTIPLY);
     }
@@ -165,28 +181,37 @@ export default class Player {
     }
 
     if (left || right) {
-      moveAnim = Graphics.player.animations.walk.key;
+      moveAnim = this.animation.animations.walk.key;
       this.facingUp = false;
     } else if (down) {
-      moveAnim = Graphics.player.animations.walk.key;
+      moveAnim = this.animation.animations.walk.key;
       this.facingUp = false;
     } else if (up) {
-      moveAnim = Graphics.player.animations.walkBack.key;
+      moveAnim = this.animation.animations.walkBack.key;
       this.facingUp = true;
     } else if (this.facingUp) {
-      moveAnim = Graphics.player.animations.idleBack.key;
+      moveAnim = this.animation.animations.idleBack.key;
     } else {
-      moveAnim = Graphics.player.animations.idle.key;
+      moveAnim = this.animation.animations.idle.key;
     }
 
     if (keys.space.isDown && time > this.attackLockedUntil) {
       this.attackUntil = time + attackDuration;
       this.attackLockedUntil = time + attackDuration + attackCooldown;
-      attackAnim = Graphics.player.animations.attack.key;
+      attackAnim = this.animation.animations.attack.key;
       this.sprite.anims.play(attackAnim, true);
 
       this.attacking = true;
       this.body.setVelocity(0, 0);
+      return;
+    }
+
+    if (keys.one.isDown && time > this.attackLockedUntil) {
+      this.attackUntil = time + attackDuration;
+      this.attackLockedUntil = time + attackDuration + attackCooldown;
+      const skillAnim = this.animation.animations.swordBuff.key;
+      this.sprite.anims.play(skillAnim, true);
+
       return;
     }
 
