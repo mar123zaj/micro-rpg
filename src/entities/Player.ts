@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import Graphics, { AnimSet } from '../configs/Graphics';
 import { PlayerClass } from '../scenes/ClassSelectionScene';
 
-const speed = 70;
 const attackSpeed = 500;
 const attackDuration = 800;
 const staggerDuration = 200;
@@ -22,10 +21,15 @@ interface Keys {
   one: Phaser.Input.Keyboard.Key;
 }
 
+// TODO: Split character classes into three different classes
 export default class Player {
   public sprite: Phaser.Physics.Arcade.Sprite;
   private animation: AnimSet;
   private keys: Keys;
+  private playerClass: PlayerClass;
+  private speed: number;
+  // TODO: Implement critical power
+  private criticalHitChance: number;
 
   private attackUntil: number;
   private staggerUntil: number;
@@ -38,25 +42,40 @@ export default class Player {
   private staggered: boolean;
   private scene: Phaser.Scene;
   private facingUp: boolean;
-  weapon: Phaser.GameObjects.Rectangle;
+  weapon?: Phaser.GameObjects.Rectangle;
+  arrows?: Phaser.Physics.Arcade.Group;
 
   constructor(x: number, y: number, scene: Phaser.Scene, playerClass: PlayerClass) {
     this.scene = scene;
-    console.log({ playerClass });
+    this.playerClass = playerClass;
     switch (playerClass) {
       case PlayerClass.SWORDSMAN:
         this.animation = Graphics.swordsman;
+        this.weapon = scene.add.rectangle(0, 0, 8, 8);
+        scene.physics.add.existing(this.weapon);
+        this.weapon.setPosition(x + 4, y + 4);
+        this.sprite = scene.physics.add.sprite(x, y, this.animation.name, 0);
+        this.sprite.setSize(4, 4);
+        this.sprite.setOffset(8, 10);
+        this.speed = 55;
+        this.criticalHitChance = 0.02;
         break;
       case PlayerClass.ARCHER:
-        this.animation = Graphics.swordsman;
+        this.animation = Graphics.archer;
+        this.arrows = scene.physics.add.group({
+          classType: Phaser.Physics.Arcade.Image,
+        });
+        this.sprite = scene.physics.add.sprite(x, y, this.animation.name, 0);
+        this.sprite.setSize(4, 4);
+        this.sprite.setOffset(6, 12);
+        this.speed = 70;
+        this.criticalHitChance = 0.06;
         break;
       case PlayerClass.MAGE:
         this.animation = Graphics.swordsman;
         break;
     }
-    this.sprite = scene.physics.add.sprite(x, y, this.animation.name, 0);
-    this.sprite.setSize(4, 4);
-    this.sprite.setOffset(8, 10);
+
     this.sprite.anims.play(this.animation.animations.idle.key);
     this.facingUp = false;
     this.sprite.setDepth(5);
@@ -108,11 +127,14 @@ export default class Player {
 
     this.body = <Phaser.Physics.Arcade.Body>this.sprite.body;
     this.time = 0;
+  }
 
-    this.weapon = scene.add.rectangle(0, 0, 8, 8); // as any as Phaser.Types.Physics.Arcade.GameObjectWithDynamicBody;
-    scene.physics.add.existing(this.weapon);
+  isArcher(): boolean {
+    return this.playerClass === PlayerClass.ARCHER;
+  }
 
-    this.weapon.setPosition(x + 4, y + 4);
+  isSwordsman(): boolean {
+    return this.playerClass === PlayerClass.SWORDSMAN;
   }
 
   isAttacking(): boolean {
@@ -126,6 +148,43 @@ export default class Player {
       this.scene.cameras.main.shake(150, 0.001);
       this.scene.cameras.main.flash(50, 100, 0, 0);
     }
+  }
+
+  isFacingLeft(): boolean {
+    return this.sprite.flipX;
+  }
+
+  private shootWithArrow(): void {
+    if (!this.arrows) {
+      return;
+    }
+
+    const arrow = this.arrows.get(this.sprite.x, this.sprite.y, Graphics.arrow.name) as Phaser.Physics.Arcade.Image;
+    if (!arrow) {
+      return;
+    }
+
+    const vec = new Phaser.Math.Vector2(0, 0);
+    vec.x = this.isFacingLeft() ? -1 : 1;
+
+    const angle = vec.angle();
+
+    arrow.setActive(true);
+    arrow.setVisible(true);
+
+    arrow.setRotation(angle);
+
+    arrow.x += vec.x * 16;
+    arrow.y += vec.y * 16;
+
+    arrow.setVelocity(vec.x * 300, vec.y * 300);
+  }
+
+  isCriticalHit(): boolean {
+    const random = Math.random();
+    const r = random < this.criticalHitChance;
+    console.log({ criticalHitChance: this.criticalHitChance, random, r });
+    return r;
   }
 
   update(time: number): void {
@@ -153,7 +212,10 @@ export default class Player {
       this.flashEmitter.start();
       // this.sprite.setBlendMode(Phaser.BlendModes.MULTIPLY);
     }
-    this.weapon.setPosition(this.sprite.flipX ? this.sprite.x - 4 : this.sprite.x + 4, this.sprite.y + 2);
+
+    if (this.isSwordsman()) {
+      this.weapon.setPosition(this.isFacingLeft() ? this.sprite.x - 4 : this.sprite.x + 4, this.sprite.y + 2);
+    }
 
     if (time < this.attackUntil || time < this.staggerUntil) {
       return;
@@ -167,17 +229,17 @@ export default class Player {
     const down = keys.down.isDown || keys.s.isDown;
 
     if (!this.body.blocked.left && left) {
-      this.body.setVelocityX(-speed);
+      this.body.setVelocityX(-this.speed);
       this.sprite.setFlipX(true);
     } else if (!this.body.blocked.right && right) {
-      this.body.setVelocityX(speed);
+      this.body.setVelocityX(this.speed);
       this.sprite.setFlipX(false);
     }
 
     if (!this.body.blocked.up && up) {
-      this.body.setVelocityY(-speed);
+      this.body.setVelocityY(-this.speed);
     } else if (!this.body.blocked.down && down) {
-      this.body.setVelocityY(speed);
+      this.body.setVelocityY(this.speed);
     }
 
     if (left || right) {
@@ -200,24 +262,40 @@ export default class Player {
       this.attackLockedUntil = time + attackDuration + attackCooldown;
       attackAnim = this.animation.animations.attack.key;
       this.sprite.anims.play(attackAnim, true);
+      this.scene.add.shader(this.animation.name);
+      if (this.isArcher) {
+        this.shootWithArrow();
+      }
+
+      if (this.isCriticalHit()) {
+        // TODO: Increase attack power when critical
+        this.scene.cameras.main.shake(150, 0.003);
+      }
 
       this.attacking = true;
       this.body.setVelocity(0, 0);
       return;
     }
 
+    // TODO: Improve buffs and effects
     if (keys.one.isDown && time > this.attackLockedUntil) {
       this.attackUntil = time + attackDuration;
       this.attackLockedUntil = time + attackDuration + attackCooldown;
-      const skillAnim = this.animation.animations.swordBuff.key;
-      this.sprite.anims.play(skillAnim, true);
 
+      if (this.isSwordsman()) {
+        const skillAnim = this.animation.animations.swordBuff.key;
+        this.sprite.anims.play(skillAnim, true);
+      } else if (this.isArcher()) {
+        this.sprite.setBlendMode(Phaser.BlendModes.ADD);
+      }
+
+      this.body.setVelocity(0, 0);
       return;
     }
 
     this.attacking = false;
     this.sprite.anims.play(moveAnim, true);
-    this.body.velocity.normalize().scale(speed);
+    this.body.velocity.normalize().scale(this.speed);
     this.sprite.setBlendMode(Phaser.BlendModes.NORMAL);
     if (this.emitter.on) {
       this.emitter.stop();

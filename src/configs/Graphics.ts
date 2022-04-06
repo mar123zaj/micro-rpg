@@ -1,9 +1,10 @@
-import Environment from '../../assets/tilesets/micro_tileset.png';
+import Archer from '../../assets/characters/playable/archer.png';
 import Barbarian from '../../assets/characters/playable/barbarian.png';
 import Swordsman from '../../assets/characters/playable/swordsman.png';
 import GreenSlime from '../../assets/enemies/GreenSlime.png';
 import RedSlime from '../../assets/enemies/RedSlime.png';
-
+import Arrow from '../../assets/items/arrow.png';
+import Environment from '../../assets/tilesets/micro_tileset.png';
 import Util from '../../assets/Util.png';
 
 type AnimConfig = {
@@ -84,31 +85,31 @@ const barbarian: AnimSet = {
   file: Barbarian,
   animations: {
     idle: {
-      key: 'barbarianplayerIdle',
+      key: 'barbarianIdle',
       frames: { start: 13, end: 16 },
       frameRate: 6,
       repeat: -1,
     },
     idleBack: {
-      key: 'barbarianplayerIdleBack',
+      key: 'barbarianIdleBack',
       frames: { start: 13, end: 16 },
       frameRate: 6,
       repeat: -1,
     },
     walk: {
-      key: 'barbarianplayerWalk',
+      key: 'barbarianWalk',
       frames: { start: 17, end: 20 },
       frameRate: 10,
       repeat: -1,
     },
     walkBack: {
-      key: 'barbarianplayerWalkBack',
+      key: 'barbarianWalkBack',
       frames: { start: 17, end: 20 },
       frameRate: 10,
       repeat: -1,
     },
     attack: {
-      key: 'barbarianplayerAttack',
+      key: 'barbarianAttack',
       frames: { frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
       frameRate: 18,
     },
@@ -122,31 +123,31 @@ const swordsman: AnimSet = {
   file: Swordsman,
   animations: {
     idle: {
-      key: 'playerIdle',
+      key: 'swordsmanIdle',
       frames: { start: 7, end: 10 },
       frameRate: 6,
       repeat: -1,
     },
     idleBack: {
-      key: 'playerIdleBack',
+      key: 'swordsmanIdleBack',
       frames: { start: 7, end: 10 },
       frameRate: 6,
       repeat: -1,
     },
     walk: {
-      key: 'playerWalk',
+      key: 'swordsmanWalk',
       frames: { start: 11, end: 18 },
       frameRate: 10,
       repeat: -1,
     },
     walkBack: {
-      key: 'playerWalkBack',
+      key: 'swordsmanWalkBack',
       frames: { start: 11, end: 18 },
       frameRate: 10,
       repeat: -1,
     },
     attack: {
-      key: 'playerAttack',
+      key: 'swordsmanAttack',
       frames: { frames: [0, 1, 2, 3, 4, 5, 6] },
       frameRate: 18,
     },
@@ -154,6 +155,44 @@ const swordsman: AnimSet = {
       key: 'swordBuff',
       frames: { frames: [0, 3, 4, 19, 20, 21] },
       frameRate: 10,
+    },
+  },
+};
+
+const archer: AnimSet = {
+  name: 'archer',
+  width: 16,
+  height: 16,
+  file: Archer,
+  animations: {
+    idle: {
+      key: 'archerIdle',
+      frames: { start: 8, end: 11 },
+      frameRate: 6,
+      repeat: -1,
+    },
+    idleBack: {
+      key: 'archerIdleBack',
+      frames: { start: 8, end: 11 },
+      frameRate: 6,
+      repeat: -1,
+    },
+    walk: {
+      key: 'archerWalk',
+      frames: { start: 12, end: 19 },
+      frameRate: 10,
+      repeat: -1,
+    },
+    walkBack: {
+      key: 'archerWalkBack',
+      frames: { start: 12, end: 19 },
+      frameRate: 10,
+      repeat: -1,
+    },
+    attack: {
+      key: 'archerAttack',
+      frames: { frames: [0, 1, 2, 3, 4, 5, 6, 7] },
+      frameRate: 18,
     },
   },
 };
@@ -212,6 +251,11 @@ const redSlime: AnimSet = {
   },
 };
 
+const arrow = {
+  name: 'arrow',
+  file: Arrow,
+};
+
 const util = {
   name: 'util',
   width: 16,
@@ -226,7 +270,9 @@ export default {
   environment,
   barbarian,
   swordsman,
+  archer,
   greenSlime,
   redSlime,
+  arrow,
   util,
 };

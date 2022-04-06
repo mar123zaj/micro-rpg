@@ -33,6 +33,10 @@ export default class DungeonScene extends Phaser.Scene {
       frameHeight: Graphics.swordsman.height,
       frameWidth: Graphics.swordsman.width,
     });
+    this.load.spritesheet(Graphics.archer.name, Graphics.archer.file, {
+      frameHeight: Graphics.archer.height,
+      frameWidth: Graphics.archer.width,
+    });
     this.load.spritesheet(Graphics.greenSlime.name, Graphics.greenSlime.file, {
       frameHeight: Graphics.greenSlime.height,
       frameWidth: Graphics.greenSlime.width,
@@ -41,6 +45,7 @@ export default class DungeonScene extends Phaser.Scene {
       frameHeight: Graphics.redSlime.height,
       frameWidth: Graphics.redSlime.width,
     });
+    this.load.image(Graphics.arrow.name, Graphics.arrow.file);
   }
 
   constructor() {
@@ -90,6 +95,31 @@ export default class DungeonScene extends Phaser.Scene {
     }
   }
 
+  slimeArrowCollide(arrow: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): boolean {
+    const arrowSprite = arrow as Phaser.Physics.Arcade.Image;
+    const slime = this.slimes.find((s) => s.sprite === slimeSprite);
+    if (!slime) {
+      console.log('Missing slime for sprite collision!');
+      return;
+    }
+
+    if (this.player.isAttacking()) {
+      this.slimes = this.slimes.filter((s) => s != slime);
+      slime.kill();
+      arrowSprite.setVisible(false);
+      arrowSprite.disableBody();
+      return false;
+    }
+  }
+
+  arrowWallCollide(arrow: Phaser.GameObjects.GameObject, wall: Phaser.GameObjects.GameObject): void {
+    const arrowSprite = arrow as Phaser.Physics.Arcade.Image;
+    setTimeout(() => {
+      arrowSprite.setVisible(false);
+      arrowSprite.disableBody();
+    }, 1000);
+  }
+
   create(): void {
     Object.values(Graphics.barbarian.animations).forEach((anim) => {
       if (!this.anims.get(anim.key)) {
@@ -105,6 +135,15 @@ export default class DungeonScene extends Phaser.Scene {
         this.anims.create({
           ...anim,
           frames: this.anims.generateFrameNumbers(Graphics.swordsman.name, anim.frames),
+        });
+      }
+    });
+
+    Object.values(Graphics.archer.animations).forEach((anim) => {
+      if (!this.anims.get(anim.key)) {
+        this.anims.create({
+          ...anim,
+          frames: this.anims.generateFrameNumbers(Graphics.archer.name, anim.frames),
         });
       }
     });
@@ -133,7 +172,6 @@ export default class DungeonScene extends Phaser.Scene {
 
     this.fov = new FOVLayer(map);
 
-    console.log({ cc: this.playerClass });
     this.player = new Player(
       this.tilemap.tileToWorldX(map.startingX),
       this.tilemap.tileToWorldY(map.startingY),
@@ -156,9 +194,16 @@ export default class DungeonScene extends Phaser.Scene {
     this.physics.add.collider(this.slimeGroup, map.doorLayer);
 
     this.physics.add.overlap(this.player.sprite, this.slimeGroup, this.slimePlayerCollide, undefined, this);
-    this.physics.add.overlap(this.player.weapon, this.slimeGroup, this.slimeWeaponCollide, undefined, this);
     this.physics.add.collider(this.player.sprite, this.slimeGroup, undefined, this.slimePlayerCollide, this);
-    this.physics.add.overlap(this.player.weapon, this.slimeGroup, this.slimeWeaponCollide, undefined, this);
+
+    if (this.player.isSwordsman()) {
+      this.physics.add.overlap(this.player.weapon, this.slimeGroup, this.slimeWeaponCollide, undefined, this);
+      this.physics.add.collider(this.player.weapon, this.slimeGroup, undefined, this.slimeWeaponCollide, this);
+    } else if (this.player.isArcher()) {
+      this.physics.add.collider(this.player.arrows, map.wallLayer, this.arrowWallCollide);
+      this.physics.add.overlap(this.player.arrows, this.slimeGroup, this.slimeArrowCollide, undefined, this);
+      this.physics.add.collider(this.player.arrows, this.slimeGroup, undefined, this.slimeArrowCollide, this);
+    }
 
     for (const slime of this.slimes) {
       this.physics.add.collider(slime.sprite, map.wallLayer);
