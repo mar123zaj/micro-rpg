@@ -8,6 +8,7 @@ export default class Slime {
   private readonly body: Phaser.Physics.Arcade.Body;
   private nextAction: number;
   private animSet: AnimSet;
+  private healthBar: Phaser.GameObjects.Image;
 
   constructor(x: number, y: number, scene: Phaser.Scene) {
     const chance = Math.random();
@@ -19,6 +20,7 @@ export default class Slime {
     this.sprite.setOffset(10, 14);
     this.sprite.anims.play(this.animSet.animations.idle.key);
     this.sprite.setDepth(10);
+    this.healthBar = scene.add.image(0, 0, Graphics.enemyHealthBar.name);
 
     this.body = <Phaser.Physics.Arcade.Body>this.sprite.body;
     this.nextAction = 0;
@@ -27,6 +29,8 @@ export default class Slime {
   }
 
   update(time: number): void {
+    this.healthBar.setX(this.sprite.x);
+    this.healthBar.setY(this.sprite.y - 8);
     if (time < this.nextAction) {
       return;
     }

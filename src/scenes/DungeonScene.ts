@@ -46,6 +46,7 @@ export default class DungeonScene extends Phaser.Scene {
       frameWidth: Graphics.redSlime.width,
     });
     this.load.image(Graphics.arrow.name, Graphics.arrow.file);
+    this.load.image(Graphics.enemyHealthBar.name, Graphics.enemyHealthBar.file);
   }
 
   constructor() {
