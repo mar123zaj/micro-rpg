@@ -1,5 +1,5 @@
-import CasualEncounterPNG from '../../assets/fonts/annaanthropy/CasualEncounter.png';
-import CasualEncounterFNT from '../../assets/fonts/annaanthropy/CasualEncounter.fnt';
+import CasualEncounterFNT from '../../public/assets/fonts/annaanthropy/CasualEncounter.fnt';
+import CasualEncounterPNG from '../../public/assets/fonts/annaanthropy/CasualEncounter.png';
 
 export default {
   default: [CasualEncounterPNG, CasualEncounterFNT],

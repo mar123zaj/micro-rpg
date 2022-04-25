@@ -1,7 +1,7 @@
-import Archer from '../../assets/ui/class-selection/archer.png';
-import Mage from '../../assets/ui/class-selection/mage.png';
-import Swordsman from '../../assets/ui/class-selection/swordsman.png';
-import ClassSelectedFrame from '../../assets/ui/class-selection/class_selected_frame.png';
+import Archer from '../../public/assets/ui/class-selection/archer.png';
+import ClassSelectedFrame from '../../public/assets/ui/class-selection/class_selected_frame.png';
+import Mage from '../../public/assets/ui/class-selection/mage.png';
+import Swordsman from '../../public/assets/ui/class-selection/swordsman.png';
 import { GraphicSet } from './Graphics';
 
 const swordsmanIcon: GraphicSet = {

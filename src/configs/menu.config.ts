@@ -1,9 +1,9 @@
-import Background from '../../assets/ui/menu/background.png';
-import ExitButton from '../../assets/ui/menu/exit_button.png';
-import Logo from '../../assets/ui/menu/logo.png';
-import OptionsButton from '../../assets/ui/menu/options_button.png';
-import PlayButton from '../../assets/ui/menu/play_button.png';
-import Pointer from '../../assets/ui/menu/pointer.png';
+import Background from '../../public/assets/ui/menu/background.png';
+import ExitButton from '../../public/assets/ui/menu/exit_button.png';
+import Logo from '../../public/assets/ui/menu/logo.png';
+import OptionsButton from '../../public/assets/ui/menu/options_button.png';
+import PlayButton from '../../public/assets/ui/menu/play_button.png';
+import Pointer from '../../public/assets/ui/menu/pointer.png';
 import { GraphicSet } from './Graphics';
 
 const logo: GraphicSet = {

@@ -47,7 +47,6 @@ export class Swordsman extends Player {
       this.attackLockedUntil = time + this.attackDuration + this.attackCooldown;
       const attackAnim = this.animation.animations.attack.key;
       this.sprite.anims.play(attackAnim, true);
-      this.scene.add.shader(this.animation.name);
 
       if (this.isCriticalHit()) {
         // TODO: Increase attack power when critical
