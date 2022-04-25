@@ -1,12 +1,14 @@
-import Archer from '../../assets/characters/playable/archer.png';
-import Barbarian from '../../assets/characters/playable/barbarian.png';
-import Swordsman from '../../assets/characters/playable/swordsman.png';
-import GreenSlime from '../../assets/enemies/GreenSlime.png';
-import RedSlime from '../../assets/enemies/RedSlime.png';
-import Arrow from '../../assets/items/arrow.png';
-import Environment from '../../assets/tilesets/micro_tileset.png';
-import EnemyHealthBar from '../../assets/ui/health/enemy_health_bar_100.png';
-import Util from '../../assets/Util.png';
+import Archer from '../../public/assets/characters/playable/archer.png';
+import Barbarian from '../../public/assets/characters/playable/barbarian.png';
+import Swordsman from '../../public/assets/characters/playable/swordsman.png';
+import GreenSlime from '../../public/assets/enemies/GreenSlime.png';
+import RedSlime from '../../public/assets/enemies/RedSlime.png';
+import Arrow from '../../public/assets/items/arrow.png';
+import Coins1 from '../../public/assets/items/coins_1.png';
+import Coins2 from '../../public/assets/items/coins_2.png';
+import Coins3 from '../../public/assets/items/coins_3.png';
+import Environment from '../../public/assets/tilesets/micro_tileset.png';
+import Util from '../../public/assets/Util.png';
 
 type AnimConfig = {
   key: string;
@@ -257,9 +259,19 @@ const arrow = {
   file: Arrow,
 };
 
-const enemyHealthBar = {
-  name: 'enemyHealthBar',
-  file: EnemyHealthBar,
+const coins1 = {
+  name: 'coins_1',
+  file: Coins1,
+};
+
+const coins2 = {
+  name: 'coins_2',
+  file: Coins2,
+};
+
+const coins3 = {
+  name: 'coins_3',
+  file: Coins3,
 };
 
 const util = {
@@ -280,6 +292,8 @@ export default {
   greenSlime,
   redSlime,
   arrow,
-  enemyHealthBar,
+  coins1,
+  coins2,
+  coins3,
   util,
 };

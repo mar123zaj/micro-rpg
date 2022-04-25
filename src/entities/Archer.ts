@@ -3,6 +3,7 @@ import Player from './Player';
 
 export class Archer extends Player {
   arrows: Phaser.Physics.Arcade.Group;
+  optimalAttackDistance = 50;
 
   constructor(x: number, y: number, scene: Phaser.Scene) {
     super(scene);
@@ -49,6 +50,11 @@ export class Archer extends Player {
     arrow.y += vec.y * 16;
 
     arrow.setVelocity(vec.x * 300, vec.y * 300);
+  }
+
+  calculateAttackMultiplier(enemyPositionX: number): number {
+    const distanceToEnemy = Math.abs(enemyPositionX - this.sprite.x);
+    return distanceToEnemy / this.optimalAttackDistance;
   }
 
   update(time: number): void {

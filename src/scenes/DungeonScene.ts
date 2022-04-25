@@ -21,6 +21,8 @@ export default class DungeonScene extends Phaser.Scene {
   fov: FOVLayer | null;
   tilemap: Phaser.Tilemaps.Tilemap | null;
   roomDebugGraphics?: Phaser.GameObjects.Graphics;
+  coins: Phaser.Physics.Arcade.Group;
+  attackLockedUntil = 0;
   private keys: Set<string> = new Set();
 
   preload(): void {
@@ -47,7 +49,13 @@ export default class DungeonScene extends Phaser.Scene {
       frameWidth: Graphics.redSlime.width,
     });
     this.load.image(Graphics.arrow.name, Graphics.arrow.file);
-    this.load.image(Graphics.enemyHealthBar.name, Graphics.enemyHealthBar.file);
+    this.load.image(Graphics.coins1.name, Graphics.coins1.file);
+    this.load.image(Graphics.coins2.name, Graphics.coins2.file);
+    this.load.image(Graphics.coins3.name, Graphics.coins3.file);
+
+    for (let i = 100; i > 0; i -= 10) {
+      this.load.image(`enemyHealthBar${i}`, `assets/ui/health/enemy_health_bar_${i}.png`);
+    }
   }
 
   constructor() {
@@ -75,21 +83,48 @@ export default class DungeonScene extends Phaser.Scene {
     return true;
   }
 
-  slimeSwordCollide(_: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): boolean {
+  slimeSwordCollide(_: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): void {
+    if (this.time.now < this.attackLockedUntil) {
+      return;
+    }
+
     const slime = this.slimes.find((s) => s.sprite === slimeSprite);
     if (!slime) {
       console.log('Missing slime for sprite collision!');
       return;
     }
-    console.log(`isAttacking: ${this.player.isAttacking()}`);
+
     if (this.player.isAttacking()) {
-      this.slimes = this.slimes.filter((s) => s != slime);
-      slime.kill();
-      return false;
+      this.attackLockedUntil = this.time.now + this.player.attackDuration;
+      slime.attacked(15);
+
+      if (slime.isDead()) {
+        this.slimes = this.slimes.filter((s) => s != slime);
+        slime.eliminate();
+        this.throwCoins(slime.body.x, slime.body.y);
+      }
     }
   }
 
-  slimeArrowCollide(arrow: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): boolean {
+  throwCoins(x: number, y: number): void {
+    const newCoins = this.coins.get(x, y, Graphics.coins1.name) as Phaser.Physics.Arcade.Image;
+
+    newCoins.setActive(true);
+    newCoins.setVisible(true);
+  }
+
+  playerCollectsCoins(player: Phaser.GameObjects.GameObject, coins: Phaser.GameObjects.GameObject): void {
+    const coinsSprite = coins as Phaser.Physics.Arcade.Image;
+
+    coinsSprite.setVisible(false);
+    coinsSprite.disableBody();
+  }
+
+  slimeArrowCollide(arrow: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): void {
+    if (this.time.now < this.attackLockedUntil) {
+      return;
+    }
+
     const arrowSprite = arrow as Phaser.Physics.Arcade.Image;
     const slime = this.slimes.find((s) => s.sprite === slimeSprite);
     if (!slime) {
@@ -98,11 +133,18 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     if (this.player.isAttacking()) {
-      this.slimes = this.slimes.filter((s) => s != slime);
-      slime.kill();
-      arrowSprite.setVisible(false);
+      this.attackLockedUntil = this.time.now + this.player.attackDuration;
+
+      const attackMultiplier = (this.player as Archer).calculateAttackMultiplier(slime.sprite.x);
+      slime.attacked(15 * attackMultiplier);
+
       arrowSprite.disableBody();
-      return false;
+      arrowSprite.setVisible(false);
+
+      if (slime.isDead()) {
+        this.slimes = this.slimes.filter((s) => s != slime);
+        slime.eliminate();
+      }
     }
   }
 
@@ -161,6 +203,10 @@ export default class DungeonScene extends Phaser.Scene {
       }
     });
 
+    this.coins = this.physics.add.group({
+      classType: Phaser.Physics.Arcade.Image,
+    });
+
     const map = new Map(worldTileWidth, worldTileHeight, this);
     this.tilemap = map.tilemap;
 
@@ -201,6 +247,8 @@ export default class DungeonScene extends Phaser.Scene {
 
     this.physics.add.overlap(this.player.sprite, this.slimeGroup, this.slimePlayerCollide, undefined, this);
     this.physics.add.collider(this.player.sprite, this.slimeGroup, undefined, this.slimePlayerCollide, this);
+
+    this.physics.add.overlap(this.player.sprite, this.coins, this.playerCollectsCoins, undefined, this);
 
     if (this.playerClass === PlayerClass.SWORDSMAN) {
       this.physics.add.overlap(
