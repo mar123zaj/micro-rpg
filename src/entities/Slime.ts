@@ -29,8 +29,7 @@ export default class Slime {
   }
 
   update(time: number): void {
-    this.healthBar.setX(this.sprite.x);
-    this.healthBar.setY(this.sprite.y - 8);
+    this.healthBar.setPosition(this.sprite.x, this.sprite.y - 8);
     if (time < this.nextAction) {
       return;
     }

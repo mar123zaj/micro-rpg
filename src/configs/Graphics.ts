@@ -1,7 +1,6 @@
 import Archer from '../../assets/characters/playable/archer.png';
 import Barbarian from '../../assets/characters/playable/barbarian.png';
 import Swordsman from '../../assets/characters/playable/swordsman.png';
-import Swords from '../../assets/characters/playable/swords.png';
 import GreenSlime from '../../assets/enemies/GreenSlime.png';
 import RedSlime from '../../assets/enemies/RedSlime.png';
 import Arrow from '../../assets/items/arrow.png';
@@ -161,49 +160,6 @@ const swordsman: AnimSet = {
   },
 };
 
-const swords: AnimSet = {
-  name: 'swords',
-  width: 20,
-  height: 16,
-  file: Swords,
-  animations: {
-    idle: {
-      key: 'swordsIdle',
-      frames: { start: 7, end: 10 },
-      frameRate: 6,
-      repeat: -1,
-    },
-    idleBack: {
-      key: 'swordsIdleBack',
-      frames: { start: 7, end: 10 },
-      frameRate: 6,
-      repeat: -1,
-    },
-    walk: {
-      key: 'swordsWalk',
-      frames: { start: 11, end: 18 },
-      frameRate: 10,
-      repeat: -1,
-    },
-    walkBack: {
-      key: 'swordsWalkBack',
-      frames: { start: 11, end: 18 },
-      frameRate: 10,
-      repeat: -1,
-    },
-    attack: {
-      key: 'swordsAttack',
-      frames: { frames: [0, 1, 2, 3, 4, 5, 6] },
-      frameRate: 18,
-    },
-    swordBuff: {
-      key: 'swordsBuff',
-      frames: { frames: [0, 3, 4, 19, 20, 21] },
-      frameRate: 10,
-    },
-  },
-};
-
 const archer: AnimSet = {
   name: 'archer',
   width: 16,
@@ -320,7 +276,6 @@ export default {
   environment,
   barbarian,
   swordsman,
-  swords,
   archer,
   greenSlime,
   redSlime,
