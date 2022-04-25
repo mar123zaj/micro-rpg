@@ -61,5 +61,6 @@ export default class Slime {
   kill(): void {
     this.sprite.anims.play(this.animSet.animations.death.key, false);
     this.sprite.disableBody();
+    this.healthBar.destroy();
   }
 }

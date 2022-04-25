@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import Graphics from '../configs/Graphics';
+import { Archer } from '../entities/Archer';
 import FOVLayer from '../entities/FOVLayer';
 import Map from '../entities/Map';
-import Player from '../entities/Player';
 import Slime from '../entities/Slime';
+import { Swordsman } from '../entities/Swordsman';
 import { Skill } from '../enums/skills.enum';
 import { PlayerClass } from './ClassSelectionScene';
 import UIScene from './UIScene';
@@ -14,7 +15,7 @@ export default class DungeonScene extends Phaser.Scene {
   playerClass: PlayerClass;
   lastX: number;
   lastY: number;
-  player: Player | null;
+  player: Swordsman | Archer | null;
   slimes: Slime[];
   slimeGroup: Phaser.GameObjects.Group | null;
   fov: FOVLayer | null;
@@ -61,7 +62,6 @@ export default class DungeonScene extends Phaser.Scene {
   }
 
   init(data: { playerClass: PlayerClass }): void {
-    console.log({ data });
     this.playerClass = data.playerClass;
   }
 
@@ -71,24 +71,17 @@ export default class DungeonScene extends Phaser.Scene {
       console.log('Missing slime for sprite collision!');
       return;
     }
-
-    if (this.player.isAttacking()) {
-      this.slimes = this.slimes.filter((s) => s != slime);
-      slime.kill();
-      return false;
-    } else {
-      this.player.stagger();
-      return true;
-    }
+    this.player.stagger();
+    return true;
   }
 
-  slimeWeaponCollide(_: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): boolean {
+  slimeSwordCollide(_: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): boolean {
     const slime = this.slimes.find((s) => s.sprite === slimeSprite);
     if (!slime) {
       console.log('Missing slime for sprite collision!');
       return;
     }
-
+    console.log(`isAttacking: ${this.player.isAttacking()}`);
     if (this.player.isAttacking()) {
       this.slimes = this.slimes.filter((s) => s != slime);
       slime.kill();
@@ -172,13 +165,25 @@ export default class DungeonScene extends Phaser.Scene {
     this.tilemap = map.tilemap;
 
     this.fov = new FOVLayer(map);
-
-    this.player = new Player(
-      this.tilemap.tileToWorldX(map.startingX),
-      this.tilemap.tileToWorldY(map.startingY),
-      this,
-      this.playerClass,
-    );
+    switch (this.playerClass) {
+      case PlayerClass.SWORDSMAN:
+        this.player = new Swordsman(
+          this.tilemap.tileToWorldX(map.startingX),
+          this.tilemap.tileToWorldY(map.startingY),
+          this,
+        ) as Swordsman;
+        break;
+      case PlayerClass.ARCHER:
+        this.player = new Archer(
+          this.tilemap.tileToWorldX(map.startingX),
+          this.tilemap.tileToWorldY(map.startingY),
+          this,
+        );
+        break;
+      case PlayerClass.MAGE:
+        // TODO: Implement mage
+        break;
+    }
 
     this.slimes = map.slimes;
     this.slimeGroup = this.physics.add.group(this.slimes.map((s) => s.sprite));
@@ -197,13 +202,37 @@ export default class DungeonScene extends Phaser.Scene {
     this.physics.add.overlap(this.player.sprite, this.slimeGroup, this.slimePlayerCollide, undefined, this);
     this.physics.add.collider(this.player.sprite, this.slimeGroup, undefined, this.slimePlayerCollide, this);
 
-    if (this.player.isSwordsman()) {
-      this.physics.add.overlap(this.player.weapon, this.slimeGroup, this.slimeWeaponCollide, undefined, this);
-      this.physics.add.collider(this.player.weapon, this.slimeGroup, undefined, this.slimeWeaponCollide, this);
-    } else if (this.player.isArcher()) {
-      this.physics.add.collider(this.player.arrows, map.wallLayer, this.arrowWallCollide);
-      this.physics.add.overlap(this.player.arrows, this.slimeGroup, this.slimeArrowCollide, undefined, this);
-      this.physics.add.collider(this.player.arrows, this.slimeGroup, undefined, this.slimeArrowCollide, this);
+    if (this.playerClass === PlayerClass.SWORDSMAN) {
+      this.physics.add.overlap(
+        (this.player as Swordsman).sword,
+        this.slimeGroup,
+        this.slimeSwordCollide,
+        undefined,
+        this,
+      );
+      this.physics.add.collider(
+        (this.player as Swordsman).sword,
+        this.slimeGroup,
+        undefined,
+        this.slimeSwordCollide,
+        this,
+      );
+    } else if (this.playerClass === PlayerClass.ARCHER) {
+      this.physics.add.collider((this.player as Archer).arrows, map.wallLayer, this.arrowWallCollide);
+      this.physics.add.overlap(
+        (this.player as Archer).arrows,
+        this.slimeGroup,
+        this.slimeArrowCollide,
+        undefined,
+        this,
+      );
+      this.physics.add.collider(
+        (this.player as Archer).arrows,
+        this.slimeGroup,
+        undefined,
+        this.slimeArrowCollide,
+        this,
+      );
     }
 
     for (const slime of this.slimes) {
