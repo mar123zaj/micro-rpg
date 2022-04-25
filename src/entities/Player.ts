@@ -1,11 +1,8 @@
 import Phaser from 'phaser';
 import { AnimSet } from '../configs/Graphics';
 
-const attackSpeed = 500;
-const attackDuration = 800;
 const staggerDuration = 200;
 const staggerSpeed = 100;
-const attackCooldown = attackDuration;
 
 interface Keys {
   up: Phaser.Input.Keyboard.Key;
@@ -28,6 +25,7 @@ export default class Player {
   speed: number;
   // TODO: Implement critical power
   criticalHitChance: number;
+  coins = 0;
 
   attacking = false;
   facingUp = false;
@@ -76,6 +74,10 @@ export default class Player {
 
   isCriticalHit(): boolean {
     return Math.random() < this.criticalHitChance;
+  }
+
+  addCoins(quantity: number): void {
+    this.coins += quantity;
   }
 
   update(time: number): void {

@@ -8,15 +8,22 @@ export default class Slime {
   public readonly body: Phaser.Physics.Arcade.Body;
   private nextAction: number;
   private animSet: AnimSet;
-  health = 100;
+  private fullHP: number;
+  hp: number;
+  rewardSize: number;
   private healthBar: Phaser.GameObjects.Image;
   scene: Phaser.Scene;
 
   constructor(x: number, y: number, scene: Phaser.Scene) {
     this.scene = scene;
-    const chance = Math.random();
+    const isGreenSlime = Math.random() < 0.8;
 
-    this.animSet = chance < 0.8 ? Graphics.greenSlime : Graphics.redSlime;
+    this.animSet = isGreenSlime ? Graphics.greenSlime : Graphics.redSlime;
+    this.rewardSize = isGreenSlime ? this.drawRandomNumber(0, 7) : this.drawRandomNumber(0, 10);
+    const fullHP = isGreenSlime ? this.drawRandomNumber(80, 120) : this.drawRandomNumber(100, 150);
+
+    this.fullHP = fullHP;
+    this.hp = fullHP;
 
     this.sprite = scene.physics.add.sprite(x, y, this.animSet.name, 0);
     this.sprite.setSize(12, 10);
@@ -32,33 +39,39 @@ export default class Slime {
     this.body.setImmovable(true);
   }
 
-  attacked(hitForce: number): void {
-    this.health -= hitForce;
+  private drawRandomNumber(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  attacked(hitPower: number): void {
+    this.hp -= hitPower;
     this.setHealthBar();
   }
 
   isDead(): boolean {
-    return this.health <= 0;
+    return this.hp <= 0;
   }
 
   setHealthBar(): void {
-    if (90 >= this.health && this.health > 80) {
+    const health = this.hp / this.fullHP;
+
+    if (90 >= health && health > 80) {
       this.healthBar.setTexture('enemyHealthBar90');
-    } else if (80 >= this.health && this.health > 70) {
+    } else if (80 >= health && health > 70) {
       this.healthBar.setTexture('enemyHealthBar80');
-    } else if (70 >= this.health && this.health > 60) {
+    } else if (70 >= health && health > 60) {
       this.healthBar.setTexture('enemyHealthBar70');
-    } else if (60 >= this.health && this.health > 50) {
+    } else if (60 >= health && health > 50) {
       this.healthBar.setTexture('enemyHealthBar60');
-    } else if (50 >= this.health && this.health > 40) {
+    } else if (50 >= health && health > 40) {
       this.healthBar.setTexture('enemyHealthBar50');
-    } else if (40 >= this.health && this.health > 30) {
+    } else if (40 >= health && health > 30) {
       this.healthBar.setTexture('enemyHealthBar40');
-    } else if (30 >= this.health && this.health > 20) {
+    } else if (30 >= health && health > 20) {
       this.healthBar.setTexture('enemyHealthBar30');
-    } else if (20 >= this.health && this.health > 10) {
+    } else if (20 >= health && health > 10) {
       this.healthBar.setTexture('enemyHealthBar20');
-    } else if (10 >= this.health && this.health > 0) {
+    } else if (10 >= health && health > 0) {
       this.healthBar.setTexture('enemyHealthBar10');
     }
   }

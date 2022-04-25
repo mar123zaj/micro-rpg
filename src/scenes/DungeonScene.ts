@@ -101,16 +101,19 @@ export default class DungeonScene extends Phaser.Scene {
       if (slime.isDead()) {
         this.slimes = this.slimes.filter((s) => s != slime);
         slime.eliminate();
-        this.throwCoins(slime.body.x, slime.body.y);
+        if (slime.rewardSize) {
+          this.throwCoins(slime.body.x, slime.body.y, slime.rewardSize);
+        }
       }
     }
   }
 
-  throwCoins(x: number, y: number): void {
+  throwCoins(x: number, y: number, quantity: number): void {
     const newCoins = this.coins.get(x, y, Graphics.coins1.name) as Phaser.Physics.Arcade.Image;
 
     newCoins.setActive(true);
     newCoins.setVisible(true);
+    newCoins.setData('quantity', quantity);
   }
 
   playerCollectsCoins(player: Phaser.GameObjects.GameObject, coins: Phaser.GameObjects.GameObject): void {
@@ -118,6 +121,9 @@ export default class DungeonScene extends Phaser.Scene {
 
     coinsSprite.setVisible(false);
     coinsSprite.disableBody();
+
+    const coinsQuantity = coins.getData('quantity');
+    this.player.addCoins(coinsQuantity);
   }
 
   slimeArrowCollide(arrow: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): void {
