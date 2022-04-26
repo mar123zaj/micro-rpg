@@ -53,7 +53,7 @@ export default class Slime {
   }
 
   setHealthBar(): void {
-    const health = this.hp / this.fullHP;
+    const health = (this.hp / this.fullHP) * 100;
 
     if (90 >= health && health > 80) {
       this.healthBar.setTexture('enemyHealthBar90');
