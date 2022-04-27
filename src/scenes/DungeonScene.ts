@@ -303,6 +303,7 @@ export default class DungeonScene extends Phaser.Scene {
     this.input.keyboard.on('keyup-THREE', UIScene.skillKeyReleaseHandler(Skill.THREE, this.keys));
 
     this.scene.run('ui');
+    this.scene.run('SkillShopScene', { playerClass: this.playerClass });
   }
 
   update(time: number, delta: number): void {

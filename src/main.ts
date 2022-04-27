@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import ClassSelectionScene from './scenes/ClassSelectionScene';
 import DungeonScene from './scenes/DungeonScene';
 import MenuScene from './scenes/MenuScene';
+import SkillShopScene from './scenes/SkillShopScene';
 import UIScene from './scenes/UIScene';
 
 new Phaser.Game({
@@ -10,7 +11,7 @@ new Phaser.Game({
   height: window.innerHeight,
   render: { pixelArt: true },
   physics: { default: 'arcade', arcade: { debug: true, gravity: { y: 0 } } },
-  scene: [MenuScene, ClassSelectionScene, DungeonScene, UIScene],
+  scene: [MenuScene, ClassSelectionScene, DungeonScene, UIScene, SkillShopScene],
   scale: {
     mode: Phaser.Scale.RESIZE,
   },
