@@ -19,8 +19,8 @@ export default class Slime {
     const isGreenSlime = Math.random() < 0.8;
 
     this.animSet = isGreenSlime ? Graphics.greenSlime : Graphics.redSlime;
-    this.rewardSize = isGreenSlime ? this.drawRandomNumber(0, 7) : this.drawRandomNumber(0, 10);
-    const fullHP = isGreenSlime ? this.drawRandomNumber(80, 120) : this.drawRandomNumber(100, 150);
+    this.rewardSize = isGreenSlime ? Phaser.Math.Between(0, 7) : Phaser.Math.Between(0, 10);
+    const fullHP = isGreenSlime ? Phaser.Math.Between(80, 120) : Phaser.Math.Between(100, 150);
 
     this.fullHP = fullHP;
     this.hp = fullHP;
@@ -37,10 +37,6 @@ export default class Slime {
     this.nextAction = 0;
     this.body.bounce.set(0, 0);
     this.body.setImmovable(true);
-  }
-
-  private drawRandomNumber(min: number, max: number): number {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   attacked(hitPower: number): void {
