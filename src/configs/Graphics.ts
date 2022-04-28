@@ -1,3 +1,4 @@
+import SkillsSeller from '../../public/assets/characters/npc/skills_seller.png';
 import Archer from '../../public/assets/characters/playable/archer.png';
 import Barbarian from '../../public/assets/characters/playable/barbarian.png';
 import Swordsman from '../../public/assets/characters/playable/swordsman.png';
@@ -42,8 +43,8 @@ const environment = {
   name: 'environment',
   width: 8,
   height: 8,
-  // margin: 1,
-  // spacing: 2,
+  margin: 0,
+  spacing: 0,
   file: Environment,
   indices: {
     floor: {
@@ -115,6 +116,21 @@ const barbarian: AnimSet = {
       key: 'barbarianAttack',
       frames: { frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
       frameRate: 18,
+    },
+  },
+};
+
+const skillsSeller: AnimSet = {
+  name: 'skillsSeller',
+  width: 16,
+  height: 16,
+  file: SkillsSeller,
+  animations: {
+    idle: {
+      key: 'skillsSellerIdle',
+      frames: { start: 0, end: 3 },
+      frameRate: 6,
+      repeat: -1,
     },
   },
 };
@@ -287,6 +303,7 @@ const util = {
 export default {
   environment,
   barbarian,
+  skillsSeller,
   swordsman,
   archer,
   greenSlime,

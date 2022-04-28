@@ -3,14 +3,23 @@ import Graphics from '../configs/Graphics';
 import { Archer } from '../entities/Archer';
 import FOVLayer from '../entities/FOVLayer';
 import Map from '../entities/Map';
+import SkillsSeller from '../entities/SkillsSeller';
 import Slime from '../entities/Slime';
 import { Swordsman } from '../entities/Swordsman';
+import { EventsEnum } from '../enums/events.enum';
 import { Skill } from '../enums/skills.enum';
+import eventsCenter from '../EventsCenter';
 import { PlayerClass } from './ClassSelectionScene';
 import UIScene from './UIScene';
 
 const worldTileHeight = 81;
 const worldTileWidth = 81;
+
+interface Keys {
+  esc: Phaser.Input.Keyboard.Key;
+  tab: Phaser.Input.Keyboard.Key;
+}
+
 export default class DungeonScene extends Phaser.Scene {
   playerClass: PlayerClass;
   lastX: number;
@@ -23,7 +32,12 @@ export default class DungeonScene extends Phaser.Scene {
   roomDebugGraphics?: Phaser.GameObjects.Graphics;
   coins: Phaser.Physics.Arcade.Group;
   attackLockedUntil = 0;
-  private keys: Set<string> = new Set();
+  shopLockedUntil = 0;
+  skillsSeller: SkillsSeller;
+  isSkillsShopOpened: boolean;
+  skillsShopScene: Phaser.Scenes.ScenePlugin;
+  keys: Keys;
+  private uiKeys: Set<string> = new Set();
 
   preload(): void {
     this.load.image(Graphics.environment.name, Graphics.environment.file);
@@ -31,6 +45,10 @@ export default class DungeonScene extends Phaser.Scene {
     this.load.spritesheet(Graphics.barbarian.name, Graphics.barbarian.file, {
       frameHeight: Graphics.barbarian.height,
       frameWidth: Graphics.barbarian.width,
+    });
+    this.load.spritesheet(Graphics.skillsSeller.name, Graphics.skillsSeller.file, {
+      frameHeight: Graphics.skillsSeller.height,
+      frameWidth: Graphics.skillsSeller.width,
     });
     this.load.spritesheet(Graphics.swordsman.name, Graphics.swordsman.file, {
       frameHeight: Graphics.swordsman.height,
@@ -81,6 +99,17 @@ export default class DungeonScene extends Phaser.Scene {
     }
     this.player.stagger();
     return true;
+  }
+
+  openSkillsShop(): void {
+    if (this.time.now < this.shopLockedUntil) return;
+
+    if (this.isSkillsShopOpened) return;
+
+    this.scene.run('SkillShopScene', { playerClass: this.playerClass });
+    this.isSkillsShopOpened = true;
+    this.shopLockedUntil = this.time.now + 1500;
+    this.player.sprite.disableBody();
   }
 
   slimeSwordCollide(_: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): void {
@@ -163,6 +192,20 @@ export default class DungeonScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.keys = this.input.keyboard.addKeys({
+      esc: Phaser.Input.Keyboard.KeyCodes.ESC,
+      tab: Phaser.Input.Keyboard.KeyCodes.TAB,
+    }) as Keys;
+
+    Object.values(Graphics.skillsSeller.animations).forEach((anim) => {
+      if (!this.anims.get(anim.key)) {
+        this.anims.create({
+          ...anim,
+          frames: this.anims.generateFrameNumbers(Graphics.skillsSeller.name, anim.frames),
+        });
+      }
+    });
+
     Object.values(Graphics.barbarian.animations).forEach((anim) => {
       if (!this.anims.get(anim.key)) {
         this.anims.create({
@@ -237,6 +280,9 @@ export default class DungeonScene extends Phaser.Scene {
         break;
     }
 
+    this.skillsSeller = map.skillsSeller;
+    this.skillsSeller.sprite.setPosition(this.player.sprite.x, this.player.sprite.y);
+
     this.slimes = map.slimes;
     this.slimeGroup = this.physics.add.group(this.slimes.map((s) => s.sprite));
 
@@ -253,6 +299,8 @@ export default class DungeonScene extends Phaser.Scene {
 
     this.physics.add.overlap(this.player.sprite, this.slimeGroup, this.slimePlayerCollide, undefined, this);
     this.physics.add.collider(this.player.sprite, this.slimeGroup, undefined, this.slimePlayerCollide, this);
+
+    this.physics.add.overlap(this.player.sprite, this.skillsSeller.sprite, this.openSkillsShop, undefined, this);
 
     this.physics.add.overlap(this.player.sprite, this.coins, this.playerCollectsCoins, undefined, this);
 
@@ -293,21 +341,29 @@ export default class DungeonScene extends Phaser.Scene {
       this.physics.add.collider(slime.sprite, map.wallLayer);
     }
 
-    this.input.keyboard.on('keydown-ONE', UIScene.skillKeyPressHandler(Skill.ONE, this.keys));
-    this.input.keyboard.on('keyup-ONE', UIScene.skillKeyReleaseHandler(Skill.ONE, this.keys));
+    this.input.keyboard.on('keydown-ONE', UIScene.skillKeyPressHandler(Skill.ONE, this.uiKeys));
+    this.input.keyboard.on('keyup-ONE', UIScene.skillKeyReleaseHandler(Skill.ONE, this.uiKeys));
 
-    this.input.keyboard.on('keydown-TWO', UIScene.skillKeyPressHandler(Skill.TWO, this.keys));
-    this.input.keyboard.on('keyup-TWO', UIScene.skillKeyReleaseHandler(Skill.TWO, this.keys));
+    this.input.keyboard.on('keydown-TWO', UIScene.skillKeyPressHandler(Skill.TWO, this.uiKeys));
+    this.input.keyboard.on('keyup-TWO', UIScene.skillKeyReleaseHandler(Skill.TWO, this.uiKeys));
 
-    this.input.keyboard.on('keydown-THREE', UIScene.skillKeyPressHandler(Skill.THREE, this.keys));
-    this.input.keyboard.on('keyup-THREE', UIScene.skillKeyReleaseHandler(Skill.THREE, this.keys));
+    this.input.keyboard.on('keydown-THREE', UIScene.skillKeyPressHandler(Skill.THREE, this.uiKeys));
+    this.input.keyboard.on('keyup-THREE', UIScene.skillKeyReleaseHandler(Skill.THREE, this.uiKeys));
 
     this.scene.run('ui');
-    this.scene.run('SkillShopScene', { playerClass: this.playerClass });
   }
 
   update(time: number, delta: number): void {
     this.player.update(time);
+    console.log(`player x: ${this.player.sprite.x}, y: ${this.player.sprite.y}`);
+
+    const esc = this.keys.esc.isDown;
+
+    if (esc) {
+      eventsCenter.emit(EventsEnum.STOP_SKILLS_SHOP_SCENE);
+      this.isSkillsShopOpened = false;
+      this.player.sprite.enableBody(false, this.player.sprite.x, this.player.sprite.y, true, true);
+    }
 
     const camera = this.cameras.main;
 

@@ -1,8 +1,9 @@
 import Dungeoneer from 'dungeoneer';
-import Tile, { TileType } from './Tile';
-import Slime from './Slime';
 import Graphics from '../configs/Graphics';
 import DungeonScene from '../scenes/DungeonScene';
+import SkillsSeller from './SkillsSeller';
+import Slime from './Slime';
+import Tile, { TileType } from './Tile';
 
 export default class Map {
   public readonly tiles: Tile[][];
@@ -16,6 +17,7 @@ export default class Map {
   public readonly startingY: number;
 
   public readonly slimes: Slime[];
+  public readonly skillsSeller: SkillsSeller;
 
   public readonly rooms: Dungeoneer.Room[];
 
@@ -52,12 +54,6 @@ export default class Map {
       this.tiles[d.y][d.x] = new Tile(TileType.None, d.x, d.y, this);
     });
 
-    const roomNumber = Math.floor(Math.random() * dungeon.rooms.length);
-
-    const firstRoom = dungeon.rooms[roomNumber];
-    this.startingX = Math.floor(firstRoom.x + firstRoom.width / 2);
-    this.startingY = Math.floor(firstRoom.y + firstRoom.height / 2);
-
     this.tilemap = scene.make.tilemap({
       tileWidth: Graphics.environment.width,
       tileHeight: Graphics.environment.height,
@@ -80,6 +76,7 @@ export default class Map {
 
     this.slimes = [];
 
+    const smallRooms = [];
     for (const room of dungeon.rooms) {
       groundLayer.randomize(
         room.x - 1,
@@ -90,6 +87,19 @@ export default class Map {
       );
 
       if (room.height < 4 || room.width < 4) {
+        if (this.skillsSeller) {
+          smallRooms.push(room);
+          continue;
+        }
+
+        const roomTL = this.tilemap.tileToWorldXY(room.x + 1, room.y + 1);
+        const roomBounds = this.tilemap.tileToWorldXY(room.x + room.width - 1, room.y + room.height - 1);
+
+        this.skillsSeller = new SkillsSeller(
+          Phaser.Math.Between(roomTL.x, roomBounds.x),
+          Phaser.Math.Between(roomTL.y, roomBounds.y),
+          scene,
+        );
         continue;
       }
 
@@ -134,10 +144,16 @@ export default class Map {
       },
       this,
     );
-    //this.doorLayer.setDepth(3);
+    this.doorLayer.setDepth(3);
 
     this.wallLayer = wallLayer;
-    //this.wallLayer.setDepth(2);
+    this.wallLayer.setDepth(2);
+
+    const startingRoomIndex = Phaser.Math.Between(0, smallRooms.length - 1);
+    const startingRoom = smallRooms[startingRoomIndex];
+
+    this.startingX = Math.floor(startingRoom.x + startingRoom.width / 2);
+    this.startingY = Math.floor(startingRoom.y + startingRoom.height / 2);
   }
 
   tileAt(x: number, y: number): Tile | null {

@@ -2,9 +2,12 @@ import Phaser from 'phaser';
 import IndicatingFrame from '../../public/assets/ui/indicating_frame.png';
 import Skill1 from '../../public/assets/ui/skills/skill1.png';
 import SkillsShop from '../../public/assets/ui/skills_shop.png';
+import { EventsEnum } from '../enums/events.enum';
+import eventsCenter from '../EventsCenter';
 import { PlayerClass } from './ClassSelectionScene';
 
 type SkillInfo = { name: string; description: string; icon: string; cost: number };
+
 const SKILLS_INFO: Record<PlayerClass, SkillInfo[]> = {
   [PlayerClass.SWORDSMAN]: [
     {
@@ -185,6 +188,8 @@ export default class SkillShopScene extends Phaser.Scene {
 
     const shop2 = this.add.image(0, 0, 'skills_shop').setOrigin(0);
     const container2 = this.add.container((width * 3) / 4 - shop2.width / 2, (height - shop2.height) / 2, [shop2]);
+
+    eventsCenter.on(EventsEnum.STOP_SKILLS_SHOP_SCENE, () => this.scene.stop(), this);
   }
 
   private isOnFirstRow(): boolean {
