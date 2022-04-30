@@ -11,7 +11,6 @@ export default class UIScene extends Phaser.Scene {
   private skillButton1: Phaser.GameObjects.Image;
   private skillButton2: Phaser.GameObjects.Image;
   private skillButton3: Phaser.GameObjects.Image;
-  text?: Phaser.GameObjects.DynamicBitmapText;
 
   constructor() {
     super('ui');

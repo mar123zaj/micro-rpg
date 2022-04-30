@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import IndicatingFrame from '../../public/assets/ui/indicating_frame.png';
 import Skill1 from '../../public/assets/ui/skills/skill1.png';
-import SkillsShop from '../../public/assets/ui/skills_shop.png';
+import SkillsShop from '../../public/assets/ui/skills_shop_ui.png';
 import { EventsEnum } from '../enums/events.enum';
 import eventsCenter from '../EventsCenter';
 import { PlayerClass } from './ClassSelectionScene';
@@ -123,6 +123,8 @@ export default class SkillShopScene extends Phaser.Scene {
   private indicatingFrame: Phaser.GameObjects.Image;
   private displayNameText: Phaser.GameObjects.DynamicBitmapText;
   private extraInfoText: Phaser.GameObjects.DynamicBitmapText;
+  active = true;
+  private container: Phaser.GameObjects.Container;
 
   constructor() {
     super('SkillShopScene');
@@ -151,7 +153,7 @@ export default class SkillShopScene extends Phaser.Scene {
     this.indicatingFrame = this.add
       .image(this.skillsStartingPosition.x, this.skillsStartingPosition.y, 'indicating_frame')
       .setOrigin(0);
-    const container = this.add.container(width / 4 - shop.width / 2, (height - shop.height) / 2, [
+    this.container = this.add.container(width / 4 - shop.width / 2, (height - shop.height) / 2, [
       shop,
       this.indicatingFrame,
     ]);
@@ -168,11 +170,11 @@ export default class SkillShopScene extends Phaser.Scene {
       8,
     );
     this.displayNameText = this.add.dynamicBitmapText(this.namePosition.x, this.namePosition.y, 'default', '', 8);
-    container.add([this.displayNameText, this.extraInfoText]);
+    this.container.add([this.displayNameText, this.extraInfoText]);
     for (const [index, skill] of this.playerClassSkills.entries()) {
       const { name, description, icon, cost } = skill;
       const skillIcon = this.add.image(x, y, icon).setOrigin(0);
-      container.add(skillIcon);
+      this.container.add(skillIcon);
 
       if (index === 0) {
         this.displayNameText.setText(name);
@@ -186,10 +188,18 @@ export default class SkillShopScene extends Phaser.Scene {
       }
     }
 
-    const shop2 = this.add.image(0, 0, 'skills_shop').setOrigin(0);
-    const container2 = this.add.container((width * 3) / 4 - shop2.width / 2, (height - shop2.height) / 2, [shop2]);
+    eventsCenter.on(EventsEnum.ACTIVATE_SKILLS_SHOP_SCENE, this.activate, this);
+    eventsCenter.on(EventsEnum.DEACTIVATE_SKILLS_SHOP_SCENE, this.deactivate, this);
+  }
 
-    eventsCenter.on(EventsEnum.STOP_SKILLS_SHOP_SCENE, () => this.scene.stop(), this);
+  private activate(): void {
+    this.active = true;
+    this.container.setAlpha(1);
+  }
+
+  private deactivate(): void {
+    this.active = false;
+    this.container.setAlpha(0.5);
   }
 
   private isOnFirstRow(): boolean {
@@ -213,6 +223,8 @@ export default class SkillShopScene extends Phaser.Scene {
   }
 
   update(time: number): void {
+    if (!this.active) return;
+
     const up = this.keys.up.isDown;
     const down = this.keys.down.isDown;
     const left = this.keys.left.isDown;
@@ -246,8 +258,10 @@ export default class SkillShopScene extends Phaser.Scene {
       this.selectedSkillIndex += 1;
     }
 
-    const { name, cost, description } = this.playerClassSkills[this.selectedSkillIndex];
-    this.displayNameText.setText(name);
-    this.extraInfoText.setText([`Cost: ${cost} coin(s)`, '', description]);
+    if (up || down || left || right) {
+      const { name, cost, description } = this.playerClassSkills[this.selectedSkillIndex];
+      this.displayNameText.setText(name);
+      this.extraInfoText.setText([`Cost: ${cost} coin(s)`, '', description]);
+    }
   }
 }

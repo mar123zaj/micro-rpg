@@ -10,14 +10,18 @@ import { EventsEnum } from '../enums/events.enum';
 import { Skill } from '../enums/skills.enum';
 import eventsCenter from '../EventsCenter';
 import { PlayerClass } from './ClassSelectionScene';
+import PlayerSkillsScene from './PlayerSkillsScene';
+import SkillShopScene from './SkillShopScene';
 import UIScene from './UIScene';
 
 const worldTileHeight = 81;
 const worldTileWidth = 81;
 
 interface Keys {
+  enter: Phaser.Input.Keyboard.Key;
   esc: Phaser.Input.Keyboard.Key;
   tab: Phaser.Input.Keyboard.Key;
+  k: Phaser.Input.Keyboard.Key;
 }
 
 export default class DungeonScene extends Phaser.Scene {
@@ -33,9 +37,12 @@ export default class DungeonScene extends Phaser.Scene {
   coins: Phaser.Physics.Arcade.Group;
   attackLockedUntil = 0;
   shopLockedUntil = 0;
+  keyPressLockedUntil = 0;
+  private intervalKeyPress = 300;
   skillsSeller: SkillsSeller;
-  isSkillsShopOpened: boolean;
-  skillsShopScene: Phaser.Scenes.ScenePlugin;
+  isSkillsShopOpened = false;
+  isPlayerSkillsUIOpened = false;
+  playerSkillsScene?: Phaser.Scenes.ScenePlugin;
   keys: Keys;
   private uiKeys: Set<string> = new Set();
 
@@ -101,15 +108,19 @@ export default class DungeonScene extends Phaser.Scene {
     return true;
   }
 
-  openSkillsShop(): void {
+  beReadyToOpenSkillsShop(): void {
     if (this.time.now < this.shopLockedUntil) return;
 
-    if (this.isSkillsShopOpened) return;
+    const enter = this.keys.enter.isDown;
+    if (enter) {
+      if (this.isSkillsShopOpened) return;
 
-    this.scene.run('SkillShopScene', { playerClass: this.playerClass });
-    this.isSkillsShopOpened = true;
-    this.shopLockedUntil = this.time.now + 1500;
-    this.player.sprite.disableBody();
+      this.scene.run('SkillShopScene', { playerClass: this.playerClass });
+      this.playerSkillsScene = this.scene.run('PlayerSkillsScene', { active: false, playerSkills: [] });
+      this.isSkillsShopOpened = true;
+      this.shopLockedUntil = this.time.now + 1500;
+      this.player.sprite.disableBody();
+    }
   }
 
   slimeSwordCollide(_: Phaser.GameObjects.GameObject, slimeSprite: Phaser.GameObjects.GameObject): void {
@@ -193,8 +204,10 @@ export default class DungeonScene extends Phaser.Scene {
 
   create(): void {
     this.keys = this.input.keyboard.addKeys({
+      enter: Phaser.Input.Keyboard.KeyCodes.ENTER,
       esc: Phaser.Input.Keyboard.KeyCodes.ESC,
       tab: Phaser.Input.Keyboard.KeyCodes.TAB,
+      k: Phaser.Input.Keyboard.KeyCodes.K,
     }) as Keys;
 
     Object.values(Graphics.skillsSeller.animations).forEach((anim) => {
@@ -300,7 +313,13 @@ export default class DungeonScene extends Phaser.Scene {
     this.physics.add.overlap(this.player.sprite, this.slimeGroup, this.slimePlayerCollide, undefined, this);
     this.physics.add.collider(this.player.sprite, this.slimeGroup, undefined, this.slimePlayerCollide, this);
 
-    this.physics.add.overlap(this.player.sprite, this.skillsSeller.sprite, this.openSkillsShop, undefined, this);
+    this.physics.add.overlap(
+      this.player.sprite,
+      this.skillsSeller.sprite,
+      this.beReadyToOpenSkillsShop,
+      undefined,
+      this,
+    );
 
     this.physics.add.overlap(this.player.sprite, this.coins, this.playerCollectsCoins, undefined, this);
 
@@ -355,14 +374,55 @@ export default class DungeonScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     this.player.update(time);
-    console.log(`player x: ${this.player.sprite.x}, y: ${this.player.sprite.y}`);
 
     const esc = this.keys.esc.isDown;
+    const tab = this.keys.tab.isDown;
+    const k = this.keys.k.isDown;
+
+    if (time < this.keyPressLockedUntil) {
+      return;
+    }
+
+    if (esc || k || tab) {
+      this.keyPressLockedUntil = time + this.intervalKeyPress;
+    }
+
+    if (tab && this.isSkillsShopOpened && this.isSkillsShopOpened) {
+      const skillShopScene = this.scene.get('SkillShopScene') as SkillShopScene;
+      const playerSkillsScene = this.scene.get('PlayerSkillsScene') as PlayerSkillsScene;
+
+      if (skillShopScene.active && !playerSkillsScene.active) {
+        eventsCenter.emit(EventsEnum.DEACTIVATE_SKILLS_SHOP_SCENE);
+        eventsCenter.emit(EventsEnum.ACTIVATE_PLAYER_SKILLS_SCENE);
+      } else if (!skillShopScene.active && playerSkillsScene.active) {
+        eventsCenter.emit(EventsEnum.ACTIVATE_SKILLS_SHOP_SCENE);
+        eventsCenter.emit(EventsEnum.DEACTIVATE_PLAYER_SKILLS_SCENE);
+      }
+    }
 
     if (esc) {
-      eventsCenter.emit(EventsEnum.STOP_SKILLS_SHOP_SCENE);
+      this.scene.stop('SkillShopScene');
+      this.scene.stop('PlayerSkillsScene');
       this.isSkillsShopOpened = false;
+      this.isPlayerSkillsUIOpened = false;
       this.player.sprite.enableBody(false, this.player.sprite.x, this.player.sprite.y, true, true);
+    }
+
+    if (k) {
+      if (this.isSkillsShopOpened) {
+        return;
+      }
+
+      if (this.isPlayerSkillsUIOpened) {
+        this.scene.stop('PlayerSkillsScene');
+        this.isPlayerSkillsUIOpened = false;
+        this.player.sprite.enableBody(false, this.player.sprite.x, this.player.sprite.y, true, true);
+        return;
+      }
+
+      this.scene.run('PlayerSkillsScene', { active: true, playerSkills: [] });
+      this.isPlayerSkillsUIOpened = true;
+      this.player.sprite.disableBody();
     }
 
     const camera = this.cameras.main;

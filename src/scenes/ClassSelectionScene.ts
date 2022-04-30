@@ -84,7 +84,6 @@ export default class ClassSelectionScene extends Phaser.Scene {
 
   setClassInfoBoxesPositions(classInfoBoxes: ClassInfoBox[], width: number, height: number): void {
     classInfoBoxes.forEach((classInfoBox, index) => {
-      console.log(`classInfoBox.icon.name: ${classInfoBox.icon.name}`);
       classInfoBox.icon.setY(height);
       classInfoBox.icon.setX(width * 0.25 * (index + 1));
 
