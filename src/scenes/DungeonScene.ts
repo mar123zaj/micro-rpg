@@ -401,6 +401,12 @@ export default class DungeonScene extends Phaser.Scene {
     }
 
     if (esc) {
+      const skillShopScene = this.scene.get('SkillShopScene') as SkillShopScene;
+      const playerSkillsScene = this.scene.get('PlayerSkillsScene') as PlayerSkillsScene;
+      if (!skillShopScene.active && !playerSkillsScene.active) {
+        return;
+      }
+
       this.scene.stop('SkillShopScene');
       this.scene.stop('PlayerSkillsScene');
       this.isSkillsShopOpened = false;
@@ -420,7 +426,7 @@ export default class DungeonScene extends Phaser.Scene {
         return;
       }
 
-      this.scene.run('PlayerSkillsScene', { active: true, playerSkills: [] });
+      this.scene.run('PlayerSkillsScene', { active: true, playerSkills: this.player.skills });
       this.isPlayerSkillsUIOpened = true;
       this.player.sprite.disableBody();
     }

@@ -83,7 +83,6 @@ export default class DecisionWindowScene extends Phaser.Scene {
   }
 
   update(time: number): void {
-    console.log('siabadadada');
     const left = this.keys.left.isDown;
     const right = this.keys.right.isDown;
     const enter = this.keys.enter.isDown;
@@ -96,15 +95,6 @@ export default class DecisionWindowScene extends Phaser.Scene {
       this.keyPressLockedUntil = time + this.intervalKeyPress;
     }
 
-    if (enter) {
-      if (this.selectedButtonIndex === 0) {
-        eventsCenter.emit(`${Event.YES_DECISION_BUTTON_SELECTED}_${this.eventNameSuffix}`);
-      } else if (this.selectedButtonIndex === 1) {
-        eventsCenter.emit(`${Event.NO_DECISION_BUTTON_SELECTED}_${this.eventNameSuffix}`);
-      }
-      this.scene.stop();
-    }
-
     if (left) {
       this.selectedButtonIndex = this.selectedButtonIndex === 0 ? 1 : 0;
       const decisionButton = this.decisionButtons[this.selectedButtonIndex];
@@ -113,6 +103,15 @@ export default class DecisionWindowScene extends Phaser.Scene {
       this.selectedButtonIndex = this.selectedButtonIndex === 0 ? 1 : 0;
       const decisionButton = this.decisionButtons[this.selectedButtonIndex];
       this.markDecisionButtonAsSelected(decisionButton);
+    }
+
+    if (enter) {
+      if (this.selectedButtonIndex === 0) {
+        eventsCenter.emit(`${Event.YES_DECISION_BUTTON_SELECTED}_${this.eventNameSuffix}`);
+      } else if (this.selectedButtonIndex === 1) {
+        eventsCenter.emit(`${Event.NO_DECISION_BUTTON_SELECTED}_${this.eventNameSuffix}`);
+      }
+      this.scene.stop();
     }
   }
 }

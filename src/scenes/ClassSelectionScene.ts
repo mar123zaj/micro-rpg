@@ -13,9 +13,9 @@ interface ClassInfoBox {
 }
 
 export enum PlayerClass {
-  SWORDSMAN,
-  ARCHER,
-  MAGE,
+  SWORDSMAN = 'SWORDSMAN',
+  ARCHER = 'ARCHER',
+  MAGE = 'MAGE',
 }
 
 export default class ClassSelectionScene extends Phaser.Scene {

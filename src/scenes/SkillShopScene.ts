@@ -4,111 +4,11 @@ import IndicatingFrame from '../../public/assets/ui/indicating_frame.png';
 import Skill1 from '../../public/assets/ui/skills/skill1.png';
 import SkillsShop from '../../public/assets/ui/skills_shop_ui.png';
 import WindowButton from '../../public/assets/ui/window_button.png';
+import * as SKILLS from '../data/skills/skills';
 import { Event } from '../enums/events.enum';
 import eventsCenter from '../EventsCenter';
+import { Skill } from '../types/skill.type';
 import { PlayerClass } from './ClassSelectionScene';
-
-type SkillInfo = {
-  name: string;
-  description: string;
-  iconName: string;
-  cost: number;
-  icon?: Phaser.GameObjects.Image;
-  purchased?: boolean;
-};
-
-const SKILLS_INFO: Record<PlayerClass, SkillInfo[]> = {
-  [PlayerClass.SWORDSMAN]: [
-    {
-      name: 'Sword buff',
-      description: 'This is buff that gives\nsome additional attack\npower.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff2',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff3',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff4',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff5',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff6',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff7',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff8',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff9',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff9',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff9',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-    {
-      name: 'Sword buff9',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-  ],
-  [PlayerClass.ARCHER]: [
-    {
-      name: 'Sword buff',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-  ],
-  [PlayerClass.MAGE]: [
-    {
-      name: 'Sword buff',
-      description: 'This is buff that gives some additional attack power.',
-      iconName: 'skill',
-      cost: 5,
-    },
-  ],
-};
 
 interface Keys {
   up: Phaser.Input.Keyboard.Key;
@@ -117,6 +17,11 @@ interface Keys {
   right: Phaser.Input.Keyboard.Key;
   enter: Phaser.Input.Keyboard.Key;
 }
+
+type SkillShopInfo = {
+  icon?: Phaser.GameObjects.Image;
+  purchased?: boolean;
+};
 
 export default class SkillShopScene extends Phaser.Scene {
   private keys: Keys;
@@ -127,14 +32,15 @@ export default class SkillShopScene extends Phaser.Scene {
   private distanceBetweenSlots = 42;
   private intervalKeyPress = 150;
   private keyPressLockedUntil = 0;
-  private playerClassSkills: SkillInfo[];
+  private playerClassSkills: (Skill & SkillShopInfo)[];
   private selectedSkillIndex = 0;
   private indicatingFrame: Phaser.GameObjects.Image;
   private displayNameText: Phaser.GameObjects.DynamicBitmapText;
   private extraInfoText: Phaser.GameObjects.DynamicBitmapText;
-  active = true;
+  active: boolean;
   private decisionWindowEventNameSuffix = 'SkillShopScene';
   private container: Phaser.GameObjects.Container;
+  private wasInitialized = false;
 
   constructor() {
     super('SkillShopScene');
@@ -150,6 +56,7 @@ export default class SkillShopScene extends Phaser.Scene {
 
   init(data: { playerClass: PlayerClass }): void {
     this.playerClass = data.playerClass;
+    this.active = true;
   }
 
   create(): void {
@@ -160,17 +67,26 @@ export default class SkillShopScene extends Phaser.Scene {
       right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
       enter: Phaser.Input.Keyboard.KeyCodes.ENTER,
     }) as Keys;
+
     const { width, height } = this.sys.game.canvas;
-    const shop = this.add.image(0, 0, 'skills_shop').setOrigin(0);
     this.indicatingFrame = this.add
       .image(this.skillsStartingPosition.x, this.skillsStartingPosition.y, 'indicating_frame')
       .setOrigin(0);
+
+    const shop = this.add.image(0, 0, 'skills_shop').setOrigin(0);
     this.container = this.add.container(width / 4 - shop.width / 2, (height - shop.height) / 2, [
       shop,
       this.indicatingFrame,
     ]);
 
-    this.playerClassSkills = SKILLS_INFO[this.playerClass];
+    if (this.playerClass === PlayerClass.SWORDSMAN) {
+      this.playerClassSkills = SKILLS.SWORDSMAN_SKILLS;
+    } else if (this.playerClass === PlayerClass.ARCHER) {
+      this.playerClassSkills = SKILLS.ARCHER_SKILLS;
+    } else if (this.playerClass === PlayerClass.MAGE) {
+      this.playerClassSkills = SKILLS.MAGE_SKILLS;
+    }
+
     let x = this.skillsStartingPosition.x;
     let y = this.skillsStartingPosition.y;
     this.extraInfoText = this.add.dynamicBitmapText(
@@ -183,7 +99,9 @@ export default class SkillShopScene extends Phaser.Scene {
     this.displayNameText = this.add.dynamicBitmapText(this.namePosition.x, this.namePosition.y, 'default', '', 8);
     this.container.add([this.displayNameText, this.extraInfoText]);
     for (const [index, skill] of this.playerClassSkills.entries()) {
-      const { name, description, iconName, cost } = skill;
+      const {
+        info: { name, description, iconName, cost },
+      } = skill;
       skill.icon = this.add.image(x, y, iconName).setOrigin(0);
       this.container.add(skill.icon);
 
@@ -201,8 +119,6 @@ export default class SkillShopScene extends Phaser.Scene {
 
     eventsCenter.on(Event.ACTIVATE_SKILLS_SHOP_SCENE, this.activate, this);
     eventsCenter.on(Event.DEACTIVATE_SKILLS_SHOP_SCENE, this.deactivate, this);
-    eventsCenter.emit(Event.YES_DECISION_BUTTON_SELECTED);
-
     eventsCenter.on(
       `${Event.YES_DECISION_BUTTON_SELECTED}_${this.decisionWindowEventNameSuffix}`,
       this.skillBuyConfirmation,
@@ -213,20 +129,20 @@ export default class SkillShopScene extends Phaser.Scene {
       this.skillBuyRejection,
       this,
     );
+
+    this.selectedSkillIndex = 0;
   }
 
   private skillBuyConfirmation(): void {
     const purchasedSkill = this.playerClassSkills[this.selectedSkillIndex];
-    purchasedSkill.icon.setAlpha(0.3);
-    this.keyPressLockedUntil = this.time.now + 1500;
+    eventsCenter.emit(Event.SKILL_PURCHASED, purchasedSkill);
+    this.keyPressLockedUntil = this.time.now + 750;
     this.activate();
-    console.log('skillBuyConfirmation');
   }
 
   private skillBuyRejection(): void {
-    this.keyPressLockedUntil = this.time.now + 1500;
+    this.keyPressLockedUntil = this.time.now + 750;
     this.activate();
-    console.log('skillBuyRejection');
   }
 
   private activate(): void {
@@ -277,7 +193,6 @@ export default class SkillShopScene extends Phaser.Scene {
     }
 
     if (enter) {
-      console.log('buying');
       this.scene.run('DecisionWindowScene', { eventNameSuffix: this.decisionWindowEventNameSuffix });
       this.deactivate();
     }
@@ -303,7 +218,9 @@ export default class SkillShopScene extends Phaser.Scene {
     }
 
     if (up || down || left || right) {
-      const { name, cost, description } = this.playerClassSkills[this.selectedSkillIndex];
+      const {
+        info: { name, cost, description },
+      } = this.playerClassSkills[this.selectedSkillIndex];
       this.displayNameText.setText(name);
       this.extraInfoText.setText([`Cost: ${cost} coin(s)`, '', description]);
     }

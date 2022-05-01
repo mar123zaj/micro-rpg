@@ -4,9 +4,8 @@ import PlayerSKills from '../../public/assets/ui/player_skills_ui.png';
 import Skill1 from '../../public/assets/ui/skills/skill1.png';
 import { Event } from '../enums/events.enum';
 import eventsCenter from '../EventsCenter';
+import { Skill } from '../types/skill.type';
 import { PlayerClass } from './ClassSelectionScene';
-
-type SkillInfo = { name: string; description: string; icon: string; cost: number };
 
 interface Keys {
   up: Phaser.Input.Keyboard.Key;
@@ -25,7 +24,7 @@ export default class PlayerSkillsScene extends Phaser.Scene {
   private distanceBetweenSlots = 42;
   private intervalKeyPress = 150;
   private keyPressLockedUntil = 0;
-  private playerSkills: SkillInfo[] = [];
+  private playerSkills: Skill[] = [];
   private selectedSkillIndex = 0;
   private indicatingFrame: Phaser.GameObjects.Image;
   private displayNameText: Phaser.GameObjects.DynamicBitmapText;
@@ -43,7 +42,7 @@ export default class PlayerSkillsScene extends Phaser.Scene {
     this.load.image('indicating_frame', IndicatingFrame);
   }
 
-  init(data: { active?: boolean; playerSkills: SkillInfo[] }): void {
+  init(data: { active?: boolean; playerSkills: Skill[] }): void {
     if (data.active !== null) this.active = data.active;
     this.playerSkills = data.playerSkills;
   }
@@ -62,17 +61,50 @@ export default class PlayerSkillsScene extends Phaser.Scene {
     this.indicatingFrame = this.add
       .image(this.skillsStartingPosition.x, this.skillsStartingPosition.y, 'indicating_frame')
       .setOrigin(0);
+
+    this.displayNameText = this.add.dynamicBitmapText(this.namePosition.x, this.namePosition.y, 'default', '', 8);
+    this.extraInfoText = this.add.dynamicBitmapText(
+      this.extraInfoPosition.x,
+      this.extraInfoPosition.y,
+      'default',
+      '',
+      8,
+    );
     this.container = this.add.container(
       (width * 3) / 4 - playerSkillsUI.width / 2,
       (height - playerSkillsUI.height) / 2,
-      [playerSkillsUI, this.indicatingFrame],
+      [playerSkillsUI, this.indicatingFrame, this.displayNameText, this.extraInfoText],
     );
 
     const containerAlpha = this.active ? 1 : 0.5;
     this.container.setAlpha(containerAlpha);
+    this.selectedSkillIndex = 0;
 
     eventsCenter.on(Event.ACTIVATE_PLAYER_SKILLS_SCENE, this.activate, this);
     eventsCenter.on(Event.DEACTIVATE_PLAYER_SKILLS_SCENE, this.deactivate, this);
+    eventsCenter.on(Event.UPDATE_PLAYER_SKILLS_SCENE, this.updateSkills, this);
+  }
+
+  updateSkills(skill: Skill): void {
+    this.playerSkills.push(skill);
+    let x = this.skillsStartingPosition.x;
+    let y = this.skillsStartingPosition.y;
+    for (const [index, skill] of this.playerSkills.entries()) {
+      const { name, description, iconName, cost } = skill.info;
+      const icon = this.add.image(x, y, iconName).setOrigin(0);
+      this.container.add(icon);
+
+      if (index === 0) {
+        this.displayNameText.setText(name);
+        this.extraInfoText.setText([`Cost: ${cost} coin(s)`, '', description]);
+      }
+
+      x += this.distanceBetweenSlots;
+      if ((index + 1) % 4 === 0) {
+        x = this.skillsStartingPosition.x;
+        y += this.distanceBetweenSlots;
+      }
+    }
   }
 
   private activate(): void {
@@ -141,6 +173,14 @@ export default class PlayerSkillsScene extends Phaser.Scene {
       if (this.isOnLastColumn() || this.isOnLastSkill()) return;
       this.indicatingFrame.setX(x + this.distanceBetweenSlots);
       this.selectedSkillIndex += 1;
+    }
+
+    if (up || down || left || right) {
+      const {
+        info: { name, cost, description },
+      } = this.playerSkills[this.selectedSkillIndex];
+      this.displayNameText.setText(name);
+      this.extraInfoText.setText([`Cost: ${cost} coin(s)`, '', description]);
     }
   }
 }

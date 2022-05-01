@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
 import { AnimSet } from '../configs/Graphics';
+import { Event } from '../enums/events.enum';
+import eventsCenter from '../EventsCenter';
+import { Skill } from '../types/skill.type';
 
 const staggerDuration = 200;
 const staggerSpeed = 100;
@@ -38,6 +41,7 @@ export default class Player {
   body: Phaser.Physics.Arcade.Body;
   attackDuration = 800;
   attackCooldown = 800;
+  skills: Skill[] = [];
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -54,6 +58,13 @@ export default class Player {
       d: 'd',
       one: Phaser.Input.Keyboard.KeyCodes.ONE,
     }) as Keys;
+
+    eventsCenter.on(Event.SKILL_PURCHASED, this.addPurchasedSkill, this);
+  }
+
+  addPurchasedSkill(skill: Skill): void {
+    this.skills.push(skill);
+    eventsCenter.emit(Event.UPDATE_PLAYER_SKILLS_SCENE, skill);
   }
 
   isAttacking(): boolean {
