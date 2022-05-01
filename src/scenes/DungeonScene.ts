@@ -6,7 +6,7 @@ import Map from '../entities/Map';
 import SkillsSeller from '../entities/SkillsSeller';
 import Slime from '../entities/Slime';
 import { Swordsman } from '../entities/Swordsman';
-import { EventsEnum } from '../enums/events.enum';
+import { Event } from '../enums/events.enum';
 import { Skill } from '../enums/skills.enum';
 import eventsCenter from '../EventsCenter';
 import { PlayerClass } from './ClassSelectionScene';
@@ -392,11 +392,11 @@ export default class DungeonScene extends Phaser.Scene {
       const playerSkillsScene = this.scene.get('PlayerSkillsScene') as PlayerSkillsScene;
 
       if (skillShopScene.active && !playerSkillsScene.active) {
-        eventsCenter.emit(EventsEnum.DEACTIVATE_SKILLS_SHOP_SCENE);
-        eventsCenter.emit(EventsEnum.ACTIVATE_PLAYER_SKILLS_SCENE);
+        eventsCenter.emit(Event.DEACTIVATE_SKILLS_SHOP_SCENE);
+        eventsCenter.emit(Event.ACTIVATE_PLAYER_SKILLS_SCENE);
       } else if (!skillShopScene.active && playerSkillsScene.active) {
-        eventsCenter.emit(EventsEnum.ACTIVATE_SKILLS_SHOP_SCENE);
-        eventsCenter.emit(EventsEnum.DEACTIVATE_PLAYER_SKILLS_SCENE);
+        eventsCenter.emit(Event.ACTIVATE_SKILLS_SHOP_SCENE);
+        eventsCenter.emit(Event.DEACTIVATE_PLAYER_SKILLS_SCENE);
       }
     }
 

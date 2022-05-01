@@ -48,7 +48,7 @@ export default class ClassSelectionScene extends Phaser.Scene {
     const { width, height } = this.game.renderer;
 
     const oneThirdHeight = height / 3;
-
+    // TODO: Rewrite each class to container instead of two separate text and image
     this.swordsman.icon = this.add.image(0, 0, config.swordsmanIcon.name).setDepth(1).setScale(3);
     this.archer.icon = this.add.image(0, 0, config.archerIcon.name).setDepth(1).setScale(3);
     this.mage.icon = this.add.image(0, 0, config.mageIcon.name).setDepth(1).setScale(3);
@@ -105,7 +105,7 @@ export default class ClassSelectionScene extends Phaser.Scene {
     this.mage.text.setAlpha(0.5);
   }
 
-  selectClassInfoBox(classInfoBox: ClassInfoBox): void {
+  markClassInfoBoxAsSelected(classInfoBox: ClassInfoBox): void {
     this.resetClassInfoBoxesAlpha();
     classInfoBox.icon.setAlpha(1);
     classInfoBox.text.setAlpha(1);
@@ -126,27 +126,27 @@ export default class ClassSelectionScene extends Phaser.Scene {
 
     if (this.isSelected(this.swordsman)) {
       if (left) {
-        this.selectClassInfoBox(this.mage);
+        this.markClassInfoBoxAsSelected(this.mage);
       } else if (right) {
-        this.selectClassInfoBox(this.archer);
+        this.markClassInfoBoxAsSelected(this.archer);
       } else if (enter) {
         console.log('Choose swordsman');
         this.scene.start('DungeonScene', { playerClass: PlayerClass.SWORDSMAN });
       }
     } else if (this.isSelected(this.archer)) {
       if (left) {
-        this.selectClassInfoBox(this.swordsman);
+        this.markClassInfoBoxAsSelected(this.swordsman);
       } else if (right) {
-        this.selectClassInfoBox(this.mage);
+        this.markClassInfoBoxAsSelected(this.mage);
       } else if (enter) {
         console.log('Choose archer');
         this.scene.start('DungeonScene', { playerClass: PlayerClass.ARCHER });
       }
     } else if (this.isSelected(this.mage)) {
       if (left) {
-        this.selectClassInfoBox(this.archer);
+        this.markClassInfoBoxAsSelected(this.archer);
       } else if (right) {
-        this.selectClassInfoBox(this.swordsman);
+        this.markClassInfoBoxAsSelected(this.swordsman);
       } else if (enter) {
         console.log('Choose mage');
         this.scene.start('DungeonScene', { playerClass: PlayerClass.MAGE });

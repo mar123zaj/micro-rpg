@@ -3,7 +3,7 @@ import Skill1 from '../../public/assets/ui/icons/button1.png';
 import Skill2 from '../../public/assets/ui/icons/button2.png';
 import Skill3 from '../../public/assets/ui/icons/button3.png';
 import Fonts from '../configs/Fonts';
-import { EventsEnum } from '../enums/events.enum';
+import { Event } from '../enums/events.enum';
 import { Skill } from '../enums/skills.enum';
 import eventsCenter from '../EventsCenter';
 
@@ -32,8 +32,8 @@ export default class UIScene extends Phaser.Scene {
       .image(width / 2 + this.skillButton1.width + this.skillButton2.width, height * 0.9, 'skill3')
       .setOrigin(1, 0);
 
-    eventsCenter.on(EventsEnum.TURN_ON_HIGHLIGHT_SKILL_BUTTON, this.turnOnHighlightSkillButtonHandler, this);
-    eventsCenter.on(EventsEnum.TURN_OFF_HIGHLIGHT_SKILL_BUTTON, this.turnOffHighlightSkillButtonHandler, this);
+    eventsCenter.on(Event.TURN_ON_HIGHLIGHT_SKILL_BUTTON, this.turnOnHighlightSkillButtonHandler, this);
+    eventsCenter.on(Event.TURN_OFF_HIGHLIGHT_SKILL_BUTTON, this.turnOffHighlightSkillButtonHandler, this);
   }
 
   private turnOnHighlightSkillButtonHandler(skill: Skill): void {
@@ -66,7 +66,7 @@ export default class UIScene extends Phaser.Scene {
     return function (event): void {
       if (!keys.has(event.code)) {
         keys.add(event.code);
-        eventsCenter.emit(EventsEnum.TURN_ON_HIGHLIGHT_SKILL_BUTTON, skill);
+        eventsCenter.emit(Event.TURN_ON_HIGHLIGHT_SKILL_BUTTON, skill);
       }
     };
   }
@@ -74,7 +74,7 @@ export default class UIScene extends Phaser.Scene {
   static skillKeyReleaseHandler(skill: Skill, keys: Set<string>): (event: KeyboardEvent) => void {
     return function (event): void {
       keys.delete(event.code);
-      eventsCenter.emit(EventsEnum.TURN_OFF_HIGHLIGHT_SKILL_BUTTON, skill);
+      eventsCenter.emit(Event.TURN_OFF_HIGHLIGHT_SKILL_BUTTON, skill);
     };
   }
 }

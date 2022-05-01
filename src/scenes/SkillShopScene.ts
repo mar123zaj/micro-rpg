@@ -1,85 +1,94 @@
 import Phaser from 'phaser';
+import DecisionWindow from '../../public/assets/ui/decision_window.png';
 import IndicatingFrame from '../../public/assets/ui/indicating_frame.png';
 import Skill1 from '../../public/assets/ui/skills/skill1.png';
 import SkillsShop from '../../public/assets/ui/skills_shop_ui.png';
-import { EventsEnum } from '../enums/events.enum';
+import WindowButton from '../../public/assets/ui/window_button.png';
+import { Event } from '../enums/events.enum';
 import eventsCenter from '../EventsCenter';
 import { PlayerClass } from './ClassSelectionScene';
 
-type SkillInfo = { name: string; description: string; icon: string; cost: number };
+type SkillInfo = {
+  name: string;
+  description: string;
+  iconName: string;
+  cost: number;
+  icon?: Phaser.GameObjects.Image;
+  purchased?: boolean;
+};
 
 const SKILLS_INFO: Record<PlayerClass, SkillInfo[]> = {
   [PlayerClass.SWORDSMAN]: [
     {
       name: 'Sword buff',
       description: 'This is buff that gives\nsome additional attack\npower.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff2',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff3',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff4',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff5',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff6',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff7',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff8',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff9',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff9',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff9',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
     {
       name: 'Sword buff9',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
   ],
@@ -87,7 +96,7 @@ const SKILLS_INFO: Record<PlayerClass, SkillInfo[]> = {
     {
       name: 'Sword buff',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
   ],
@@ -95,7 +104,7 @@ const SKILLS_INFO: Record<PlayerClass, SkillInfo[]> = {
     {
       name: 'Sword buff',
       description: 'This is buff that gives some additional attack power.',
-      icon: 'skill',
+      iconName: 'skill',
       cost: 5,
     },
   ],
@@ -124,6 +133,7 @@ export default class SkillShopScene extends Phaser.Scene {
   private displayNameText: Phaser.GameObjects.DynamicBitmapText;
   private extraInfoText: Phaser.GameObjects.DynamicBitmapText;
   active = true;
+  private decisionWindowEventNameSuffix = 'SkillShopScene';
   private container: Phaser.GameObjects.Container;
 
   constructor() {
@@ -134,6 +144,8 @@ export default class SkillShopScene extends Phaser.Scene {
     this.load.image('skills_shop', SkillsShop);
     this.load.image('skill', Skill1);
     this.load.image('indicating_frame', IndicatingFrame);
+    this.load.image('decision_window', DecisionWindow);
+    this.load.image('window_button', WindowButton);
   }
 
   init(data: { playerClass: PlayerClass }): void {
@@ -157,7 +169,6 @@ export default class SkillShopScene extends Phaser.Scene {
       shop,
       this.indicatingFrame,
     ]);
-    //container.setSize(shop.width, shop.height);
 
     this.playerClassSkills = SKILLS_INFO[this.playerClass];
     let x = this.skillsStartingPosition.x;
@@ -172,9 +183,9 @@ export default class SkillShopScene extends Phaser.Scene {
     this.displayNameText = this.add.dynamicBitmapText(this.namePosition.x, this.namePosition.y, 'default', '', 8);
     this.container.add([this.displayNameText, this.extraInfoText]);
     for (const [index, skill] of this.playerClassSkills.entries()) {
-      const { name, description, icon, cost } = skill;
-      const skillIcon = this.add.image(x, y, icon).setOrigin(0);
-      this.container.add(skillIcon);
+      const { name, description, iconName, cost } = skill;
+      skill.icon = this.add.image(x, y, iconName).setOrigin(0);
+      this.container.add(skill.icon);
 
       if (index === 0) {
         this.displayNameText.setText(name);
@@ -188,8 +199,34 @@ export default class SkillShopScene extends Phaser.Scene {
       }
     }
 
-    eventsCenter.on(EventsEnum.ACTIVATE_SKILLS_SHOP_SCENE, this.activate, this);
-    eventsCenter.on(EventsEnum.DEACTIVATE_SKILLS_SHOP_SCENE, this.deactivate, this);
+    eventsCenter.on(Event.ACTIVATE_SKILLS_SHOP_SCENE, this.activate, this);
+    eventsCenter.on(Event.DEACTIVATE_SKILLS_SHOP_SCENE, this.deactivate, this);
+    eventsCenter.emit(Event.YES_DECISION_BUTTON_SELECTED);
+
+    eventsCenter.on(
+      `${Event.YES_DECISION_BUTTON_SELECTED}_${this.decisionWindowEventNameSuffix}`,
+      this.skillBuyConfirmation,
+      this,
+    );
+    eventsCenter.on(
+      `${Event.NO_DECISION_BUTTON_SELECTED}_${this.decisionWindowEventNameSuffix}`,
+      this.skillBuyRejection,
+      this,
+    );
+  }
+
+  private skillBuyConfirmation(): void {
+    const purchasedSkill = this.playerClassSkills[this.selectedSkillIndex];
+    purchasedSkill.icon.setAlpha(0.3);
+    this.keyPressLockedUntil = this.time.now + 1500;
+    this.activate();
+    console.log('skillBuyConfirmation');
+  }
+
+  private skillBuyRejection(): void {
+    this.keyPressLockedUntil = this.time.now + 1500;
+    this.activate();
+    console.log('skillBuyRejection');
   }
 
   private activate(): void {
@@ -235,11 +272,18 @@ export default class SkillShopScene extends Phaser.Scene {
       return;
     }
 
-    if (up || down || left || right) {
+    if (up || down || left || right || enter) {
       this.keyPressLockedUntil = time + this.intervalKeyPress;
     }
 
+    if (enter) {
+      console.log('buying');
+      this.scene.run('DecisionWindowScene', { eventNameSuffix: this.decisionWindowEventNameSuffix });
+      this.deactivate();
+    }
+
     const { x, y } = this.indicatingFrame;
+
     if (up) {
       if (this.isOnFirstRow()) return;
       this.indicatingFrame.setY(y - this.distanceBetweenSlots);

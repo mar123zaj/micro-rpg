@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import IndicatingFrame from '../../public/assets/ui/indicating_frame.png';
 import PlayerSKills from '../../public/assets/ui/player_skills_ui.png';
 import Skill1 from '../../public/assets/ui/skills/skill1.png';
-import { EventsEnum } from '../enums/events.enum';
+import { Event } from '../enums/events.enum';
 import eventsCenter from '../EventsCenter';
 import { PlayerClass } from './ClassSelectionScene';
 
@@ -71,8 +71,8 @@ export default class PlayerSkillsScene extends Phaser.Scene {
     const containerAlpha = this.active ? 1 : 0.5;
     this.container.setAlpha(containerAlpha);
 
-    eventsCenter.on(EventsEnum.ACTIVATE_PLAYER_SKILLS_SCENE, this.activate, this);
-    eventsCenter.on(EventsEnum.DEACTIVATE_PLAYER_SKILLS_SCENE, this.deactivate, this);
+    eventsCenter.on(Event.ACTIVATE_PLAYER_SKILLS_SCENE, this.activate, this);
+    eventsCenter.on(Event.DEACTIVATE_PLAYER_SKILLS_SCENE, this.deactivate, this);
   }
 
   private activate(): void {
