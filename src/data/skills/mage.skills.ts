@@ -5,8 +5,10 @@ const skills: Skill[] = [
     info: {
       name: 'Heal buff',
       description: 'This is buff that gives\nsome additional health points.',
-      iconName: 'skill',
       cost: 5,
+    },
+    graphics: {
+      iconName: 'skill',
     },
     mechanics: (scene: Phaser.Scene, data: Record<string, any>): void => {
       console.log('heal buff');

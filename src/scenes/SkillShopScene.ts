@@ -19,7 +19,6 @@ interface Keys {
 }
 
 type SkillShopInfo = {
-  icon?: Phaser.GameObjects.Image;
   purchased?: boolean;
 };
 
@@ -99,11 +98,18 @@ export default class SkillShopScene extends Phaser.Scene {
     this.displayNameText = this.add.dynamicBitmapText(this.namePosition.x, this.namePosition.y, 'default', '', 8);
     this.container.add([this.displayNameText, this.extraInfoText]);
     for (const [index, skill] of this.playerClassSkills.entries()) {
+      console.log({ purchased: skill.purchased });
       const {
-        info: { name, description, iconName, cost },
+        info: { name, description, cost },
+        graphics: { iconName },
       } = skill;
-      skill.icon = this.add.image(x, y, iconName).setOrigin(0);
-      this.container.add(skill.icon);
+
+      skill.graphics.icon = this.add.image(x, y, iconName).setOrigin(0);
+      if (skill.purchased) {
+        skill.graphics.icon.setAlpha(0.5);
+      }
+
+      this.container.add(skill.graphics.icon);
 
       if (index === 0) {
         this.displayNameText.setText(name);
@@ -134,7 +140,10 @@ export default class SkillShopScene extends Phaser.Scene {
   }
 
   private skillBuyConfirmation(): void {
+    console.log('skill shop confirmation');
     const purchasedSkill = this.playerClassSkills[this.selectedSkillIndex];
+    purchasedSkill.graphics.icon.setAlpha(0.5);
+    purchasedSkill.purchased = true;
     eventsCenter.emit(Event.SKILL_PURCHASED, purchasedSkill);
     this.keyPressLockedUntil = this.time.now + 750;
     this.activate();
@@ -193,6 +202,11 @@ export default class SkillShopScene extends Phaser.Scene {
     }
 
     if (enter) {
+      const purchasedSkill = this.playerClassSkills[this.selectedSkillIndex];
+      if (purchasedSkill.purchased) {
+        return;
+      }
+
       this.scene.run('DecisionWindowScene', { eventNameSuffix: this.decisionWindowEventNameSuffix });
       this.deactivate();
     }

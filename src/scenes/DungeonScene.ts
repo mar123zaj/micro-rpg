@@ -116,7 +116,7 @@ export default class DungeonScene extends Phaser.Scene {
       if (this.isSkillsShopOpened) return;
 
       this.scene.run('SkillShopScene', { playerClass: this.playerClass });
-      this.playerSkillsScene = this.scene.run('PlayerSkillsScene', { active: false, playerSkills: [] });
+      this.playerSkillsScene = this.scene.run('PlayerSkillsScene', { active: false, playerSkills: this.player.skills });
       this.isSkillsShopOpened = true;
       this.shopLockedUntil = this.time.now + 1500;
       this.player.sprite.disableBody();
@@ -368,6 +368,27 @@ export default class DungeonScene extends Phaser.Scene {
 
     this.input.keyboard.on('keydown-THREE', UIScene.skillKeyPressHandler(Skill.THREE, this.uiKeys));
     this.input.keyboard.on('keyup-THREE', UIScene.skillKeyReleaseHandler(Skill.THREE, this.uiKeys));
+
+    this.input.keyboard.on('keydown-FOUR', UIScene.skillKeyPressHandler(Skill.FOUR, this.uiKeys));
+    this.input.keyboard.on('keyup-FOUR', UIScene.skillKeyReleaseHandler(Skill.FOUR, this.uiKeys));
+
+    this.input.keyboard.on('keydown-FIVE', UIScene.skillKeyPressHandler(Skill.FIVE, this.uiKeys));
+    this.input.keyboard.on('keyup-FIVE', UIScene.skillKeyReleaseHandler(Skill.FIVE, this.uiKeys));
+
+    this.input.keyboard.on('keydown-SIX', UIScene.skillKeyPressHandler(Skill.SIX, this.uiKeys));
+    this.input.keyboard.on('keyup-SIX', UIScene.skillKeyReleaseHandler(Skill.SIX, this.uiKeys));
+
+    this.input.keyboard.on('keydown-SEVEN', UIScene.skillKeyPressHandler(Skill.SEVEN, this.uiKeys));
+    this.input.keyboard.on('keyup-SEVEN', UIScene.skillKeyReleaseHandler(Skill.SEVEN, this.uiKeys));
+
+    this.input.keyboard.on('keydown-EIGHT', UIScene.skillKeyPressHandler(Skill.EIGHT, this.uiKeys));
+    this.input.keyboard.on('keyup-EIGHT', UIScene.skillKeyReleaseHandler(Skill.EIGHT, this.uiKeys));
+
+    this.input.keyboard.on('keydown-NINE', UIScene.skillKeyPressHandler(Skill.NINE, this.uiKeys));
+    this.input.keyboard.on('keyup-NINE', UIScene.skillKeyReleaseHandler(Skill.NINE, this.uiKeys));
+
+    this.input.keyboard.on('keydown-ZERO', UIScene.skillKeyPressHandler(Skill.ZERO, this.uiKeys));
+    this.input.keyboard.on('keyup-ZERO', UIScene.skillKeyReleaseHandler(Skill.ZERO, this.uiKeys));
 
     this.scene.run('ui');
   }
