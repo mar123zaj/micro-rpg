@@ -209,72 +209,31 @@ export default class Player {
     const nine = this.keys.nine.isDown;
     const zero = this.keys.zero.isDown;
 
+    let skillMechanics: SkillMechanics;
     // TODO: To refactor
     if (one) {
-      const skillMechanics = this.skillsBindMapping['one'];
-      try {
-        skillMechanics(this.scene);
-      } catch (error) {
-        return;
-      }
+      skillMechanics = this.skillsBindMapping['one'];
     } else if (two) {
-      const skillMechanics = this.skillsBindMapping['two'];
-      try {
-        skillMechanics(this.scene);
-      } catch (error) {
-        return;
-      }
+      skillMechanics = this.skillsBindMapping['two'];
     } else if (three) {
-      const skillMechanics = this.skillsBindMapping['three'];
-      try {
-        skillMechanics(this.scene);
-      } catch (error) {
-        return;
-      }
+      skillMechanics = this.skillsBindMapping['three'];
     } else if (four) {
-      const skillMechanics = this.skillsBindMapping['four'];
-      try {
-        skillMechanics(this.scene);
-      } catch (error) {
-        return;
-      }
+      skillMechanics = this.skillsBindMapping['four'];
     } else if (five) {
-      const skillMechanics = this.skillsBindMapping['five'];
-      try {
-        skillMechanics(this.scene);
-      } catch (error) {
-        return;
-      }
+      skillMechanics = this.skillsBindMapping['five'];
     } else if (six) {
-      const skillMechanics = this.skillsBindMapping['six'];
-      try {
-        skillMechanics(this.scene);
-      } catch (error) {
-        return;
-      }
+      skillMechanics = this.skillsBindMapping['six'];
     } else if (seven) {
-      const skillMechanics = this.skillsBindMapping['seven'];
-      try {
-        skillMechanics(this.scene);
-      } catch (error) {
-        return;
-      }
+      skillMechanics = this.skillsBindMapping['seven'];
     } else if (eight) {
-      const skillMechanics = this.skillsBindMapping['eight'];
-      try {
-        skillMechanics(this.scene);
-      } catch (error) {
-        return;
-      }
+      skillMechanics = this.skillsBindMapping['eight'];
     } else if (nine) {
-      const skillMechanics = this.skillsBindMapping['nine'];
-      try {
-        skillMechanics(this.scene);
-      } catch (error) {
-        return;
-      }
+      skillMechanics = this.skillsBindMapping['nine'];
     } else if (zero) {
-      const skillMechanics = this.skillsBindMapping['zero'];
+      skillMechanics = this.skillsBindMapping['zero'];
+    }
+
+    if (skillMechanics) {
       try {
         skillMechanics(this.scene);
       } catch (error) {

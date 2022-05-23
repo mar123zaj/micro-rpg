@@ -1,4 +1,4 @@
-export enum Skill {
+export enum SkillButton {
   ONE = 1,
   TWO = 2,
   THREE = 3,

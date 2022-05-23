@@ -8,7 +8,7 @@ const skills: Skill[] = [
       cost: 5,
     },
     graphics: {
-      iconName: 'skill',
+      iconName: 'skill_fire',
     },
     mechanics: (scene: Phaser.Scene, data: Record<string, any>): void => {
       console.log('bow buff');

@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import DecisionWindow from '../../public/assets/ui/decision_window.png';
 import IndicatingFrame from '../../public/assets/ui/indicating_frame.png';
 import Skill1 from '../../public/assets/ui/skills/skill1.png';
+import Skill2 from '../../public/assets/ui/skills/skill2.png';
+import Skill3 from '../../public/assets/ui/skills/skill3.png';
+import Skill4 from '../../public/assets/ui/skills/skill4.png';
 import SkillsShop from '../../public/assets/ui/skills_shop_ui.png';
 import WindowButton from '../../public/assets/ui/window_button.png';
 import * as SKILLS from '../data/skills/skills';
@@ -36,10 +39,11 @@ export default class SkillShopScene extends Phaser.Scene {
   private indicatingFrame: Phaser.GameObjects.Image;
   private displayNameText: Phaser.GameObjects.DynamicBitmapText;
   private extraInfoText: Phaser.GameObjects.DynamicBitmapText;
+  private nextBlinkTime = 0;
+  private blinkInterval = 500;
   active: boolean;
   private decisionWindowEventNameSuffix = 'SkillShopScene';
   private container: Phaser.GameObjects.Container;
-  private wasInitialized = false;
 
   constructor() {
     super('SkillShopScene');
@@ -47,7 +51,10 @@ export default class SkillShopScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image('skills_shop', SkillsShop);
-    this.load.image('skill', Skill1);
+    this.load.image('skill_fire', Skill1);
+    this.load.image('skill_ice', Skill2);
+    this.load.image('skill_ground', Skill3);
+    this.load.image('skill_water', Skill4);
     this.load.image('indicating_frame', IndicatingFrame);
     this.load.image('decision_window', DecisionWindow);
     this.load.image('window_button', WindowButton);
@@ -184,8 +191,17 @@ export default class SkillShopScene extends Phaser.Scene {
     return this.selectedSkillIndex + 1 === this.playerClassSkills.length;
   }
 
+  blinkingIndicatingFrame(time: number): void {
+    if (time > this.nextBlinkTime) {
+      this.indicatingFrame.setVisible(!this.indicatingFrame.visible);
+      this.nextBlinkTime = time + this.blinkInterval;
+    }
+  }
+
   update(time: number): void {
     if (!this.active) return;
+
+    this.blinkingIndicatingFrame(time);
 
     const up = this.keys.up.isDown;
     const down = this.keys.down.isDown;

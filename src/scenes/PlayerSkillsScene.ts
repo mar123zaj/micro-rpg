@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import IndicatingFrame from '../../public/assets/ui/indicating_frame.png';
 import PlayerSKills from '../../public/assets/ui/player_skills_ui.png';
 import Skill1 from '../../public/assets/ui/skills/skill1.png';
+import Skill2 from '../../public/assets/ui/skills/skill2.png';
+import Skill3 from '../../public/assets/ui/skills/skill3.png';
+import Skill4 from '../../public/assets/ui/skills/skill4.png';
 import { Event } from '../enums/events.enum';
 import eventsCenter from '../EventsCenter';
 import { Skill } from '../types/skill.type';
@@ -31,8 +34,10 @@ export default class PlayerSkillsScene extends Phaser.Scene {
   private namePosition = { x: 12, y: 17 };
   private extraInfoPosition = { x: 12, y: 214 };
   private distanceBetweenSlots = 42;
-  private intervalKeyPress = 150;
+  private intervalKeyPress = 550;
   private keyPressLockedUntil = 0;
+  private nextBlinkTime = 0;
+  private blinkInterval = 500;
   private playerSkills: Skill[] = [];
   private selectedSkillIndex = 0;
   private indicatingFrame: Phaser.GameObjects.Image;
@@ -47,7 +52,10 @@ export default class PlayerSkillsScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image('player_skills', PlayerSKills);
-    this.load.image('skill', Skill1);
+    this.load.image('skill_fire', Skill1);
+    this.load.image('skill_ice', Skill2);
+    this.load.image('skill_ground', Skill3);
+    this.load.image('skill_water', Skill4);
     this.load.image('indicating_frame', IndicatingFrame);
   }
 
@@ -104,9 +112,16 @@ export default class PlayerSkillsScene extends Phaser.Scene {
       const {
         info: { name, description, cost },
         graphics: { iconName },
+        bind,
       } = skill;
       skill.graphics.icon = this.add.image(x, y, iconName).setOrigin(0);
       this.container.add(skill.graphics.icon);
+
+      if (bind) {
+        const { buttonName } = bind;
+        const displayText = this.add.dynamicBitmapText(x, y, 'default', buttonName, 8);
+        this.container.add(displayText);
+      }
 
       if (index === 0) {
         this.displayNameText.setText(name);
@@ -181,53 +196,58 @@ export default class PlayerSkillsScene extends Phaser.Scene {
     return this.selectedSkillIndex + 1 === this.playerSkills.length;
   }
 
-  clearSkillBind(skill: Skill): void {
-    skill.bind.displayText.destroy();
-    skill.bind = null;
-  }
-
-  clearButtonBindIfInUse(buttonName: string): void {
-    const skill = this.playerSkills.find(({ bind }) => (bind ? bind.buttonName === buttonName : false));
+  clearButtonBindIfInUse(buttonNumber: number): void {
+    const skill = this.playerSkills.find(({ bind }) => (bind ? bind.buttonName === buttonNumber.toString() : false));
 
     if (skill) {
       this.clearSkillBind(skill);
     }
   }
 
-  clearSkillBindIfAssigned(skill: Skill): void {
+  clearSkillBind(skill: Skill): void {
+    console.log('clearSkillBind');
+
+    if (skill.bind) {
+      eventsCenter.emit(Event.UNBIND_SKILL_ICON, parseInt(skill.bind.buttonName));
+    }
+
+    skill.bind.displayText.destroy();
+    skill.bind = null;
+  }
+
+  bindSkillToButton(skill: Skill, buttonNumber: number): void {
+    console.log('bindSkillToButton');
+    console.log({ name: skill.info.name });
+    console.log({ bind: skill.bind });
     if (skill.bind) {
       this.clearSkillBind(skill);
     }
-  }
-
-  bindSkillToButton(skill: Skill, buttonName: string): void {
-    this.clearSkillBindIfAssigned(skill);
-    this.clearButtonBindIfInUse(buttonName);
+    this.clearButtonBindIfInUse(buttonNumber);
+    console.log({ buttonName: buttonNumber });
 
     const { x, y } = skill.graphics.icon;
-    const displayText = this.add.dynamicBitmapText(x, y, 'default', buttonName, 8);
+    const displayText = this.add.dynamicBitmapText(x, y, 'default', buttonNumber.toString(), 8);
     this.container.add(displayText);
-    skill.bind = { buttonName, displayText };
+    skill.bind = { buttonName: buttonNumber.toString(), displayText };
+    eventsCenter.emit(Event.BIND_SKILL_ICON, skill.graphics.iconName, buttonNumber);
+  }
+
+  blinkingIndicatingFrame(time: number): void {
+    if (time > this.nextBlinkTime) {
+      this.indicatingFrame.setVisible(!this.indicatingFrame.visible);
+      this.nextBlinkTime = time + this.blinkInterval;
+    }
   }
 
   update(time: number): void {
     if (!this.active) return;
 
+    this.blinkingIndicatingFrame(time);
+
     const up = this.keys.up.isDown;
     const down = this.keys.down.isDown;
     const left = this.keys.left.isDown;
     const right = this.keys.right.isDown;
-
-    if (time < this.keyPressLockedUntil) {
-      return;
-    }
-
-    if (up || down || left || right) {
-      this.keyPressLockedUntil = time + this.intervalKeyPress;
-
-      if (this.playerSkills.length === 0) return;
-    }
-
     const one = this.keys.one.isDown;
     const two = this.keys.two.isDown;
     const three = this.keys.three.isDown;
@@ -239,36 +259,48 @@ export default class PlayerSkillsScene extends Phaser.Scene {
     const nine = this.keys.nine.isDown;
     const zero = this.keys.zero.isDown;
 
+    if (time < this.keyPressLockedUntil) {
+      console.log('return');
+      return;
+    }
+
+    if (up || down || left || right || one || two || three || four || five || six || seven || eight || nine || zero) {
+      this.keyPressLockedUntil = time + this.intervalKeyPress;
+
+      if (this.playerSkills.length === 0) return;
+    }
+
     if (one) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '1');
+      console.log({ skillToBindName: skillToBind.info.name });
+      this.bindSkillToButton(skillToBind, 1);
     } else if (two) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '2');
+      this.bindSkillToButton(skillToBind, 2);
     } else if (three) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '3');
+      this.bindSkillToButton(skillToBind, 3);
     } else if (four) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '4');
+      this.bindSkillToButton(skillToBind, 4);
     } else if (five) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '5');
+      this.bindSkillToButton(skillToBind, 5);
     } else if (six) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '6');
+      this.bindSkillToButton(skillToBind, 6);
     } else if (seven) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '7');
+      this.bindSkillToButton(skillToBind, 7);
     } else if (eight) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '8');
+      this.bindSkillToButton(skillToBind, 8);
     } else if (nine) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '9');
+      this.bindSkillToButton(skillToBind, 9);
     } else if (zero) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      this.bindSkillToButton(skillToBind, '0');
+      this.bindSkillToButton(skillToBind, 0);
     }
 
     const { x, y } = this.indicatingFrame;
