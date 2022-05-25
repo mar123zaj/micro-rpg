@@ -105,7 +105,6 @@ export default class SkillShopScene extends Phaser.Scene {
     this.displayNameText = this.add.dynamicBitmapText(this.namePosition.x, this.namePosition.y, 'default', '', 8);
     this.container.add([this.displayNameText, this.extraInfoText]);
     for (const [index, skill] of this.playerClassSkills.entries()) {
-      console.log({ purchased: skill.purchased });
       const {
         info: { name, description, cost },
         graphics: { iconName },
@@ -147,7 +146,6 @@ export default class SkillShopScene extends Phaser.Scene {
   }
 
   private skillBuyConfirmation(): void {
-    console.log('skill shop confirmation');
     const purchasedSkill = this.playerClassSkills[this.selectedSkillIndex];
     purchasedSkill.graphics.icon.setAlpha(0.5);
     purchasedSkill.purchased = true;

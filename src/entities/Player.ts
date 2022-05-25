@@ -90,11 +90,81 @@ export default class Player {
     }) as Keys;
 
     eventsCenter.on(Event.SKILL_PURCHASED, this.addPurchasedSkill, this);
+    eventsCenter.on(Event.BIND_SKILL_MECHANICS_TO_BUTTON, this.bindSkillMechanicsToButton, this);
+    eventsCenter.on(Event.UNBIND_SKILL_MECHANICS_FROM_BUTTON, this.unbindSkillMechanicsFromButton, this);
+  }
+
+  bindSkillMechanicsToButton(skillMechanics: SkillMechanics, buttonNumber: number): void {
+    switch (buttonNumber) {
+      case 0:
+        this.skillsBindMapping.zero = skillMechanics;
+        break;
+      case 1:
+        this.skillsBindMapping.one = skillMechanics;
+        break;
+      case 2:
+        this.skillsBindMapping.two = skillMechanics;
+        break;
+      case 3:
+        this.skillsBindMapping.three = skillMechanics;
+        break;
+      case 4:
+        this.skillsBindMapping.four = skillMechanics;
+        break;
+      case 5:
+        this.skillsBindMapping.five = skillMechanics;
+        break;
+      case 6:
+        this.skillsBindMapping.six = skillMechanics;
+        break;
+      case 7:
+        this.skillsBindMapping.seven = skillMechanics;
+        break;
+      case 8:
+        this.skillsBindMapping.eight = skillMechanics;
+        break;
+      case 9:
+        this.skillsBindMapping.nine = skillMechanics;
+        break;
+    }
+  }
+
+  unbindSkillMechanicsFromButton(buttonNumber: number): void {
+    switch (buttonNumber) {
+      case 0:
+        this.skillsBindMapping.zero = null;
+        break;
+      case 1:
+        this.skillsBindMapping.one = null;
+        break;
+      case 2:
+        this.skillsBindMapping.two = null;
+        break;
+      case 3:
+        this.skillsBindMapping.three = null;
+        break;
+      case 4:
+        this.skillsBindMapping.four = null;
+        break;
+      case 5:
+        this.skillsBindMapping.five = null;
+        break;
+      case 6:
+        this.skillsBindMapping.six = null;
+        break;
+      case 7:
+        this.skillsBindMapping.seven = null;
+        break;
+      case 8:
+        this.skillsBindMapping.eight = null;
+        break;
+      case 9:
+        this.skillsBindMapping.nine = null;
+        break;
+    }
   }
 
   addPurchasedSkill(skill: Skill): void {
-    console.log('player add purchased skill');
-
     if (this.wasSkillAlreadyPurchased(skill)) {
       return;
     }

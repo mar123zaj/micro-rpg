@@ -53,32 +53,27 @@ export default class UIScene extends Phaser.Scene {
   }
 
   private bindSkillIconToButton(skillIconName: string, buttonNumber: number): void {
-    console.log('bindSkillIconToButton');
     const buttonNumberMapped = buttonNumber !== 0 ? buttonNumber - 1 : 9;
     const skillButtonContainer = this.skillsButtonsContainers[buttonNumberMapped];
-    console.log({ skillsButtonsContainers: this.skillsButtonsContainers });
+
     const skillIcon = this.add.image(0, 0, skillIconName).setOrigin(1, 0);
-    console.log({ skillIcon });
 
     skillButtonContainer.addAt(skillIcon);
   }
 
   private unbindSkillIconToButton(buttonNumber: number): void {
-    console.log('unbindSkillIconToButton');
-    console.log({ buttonNumber });
     const buttonNumberMapped = buttonNumber !== 0 ? buttonNumber - 1 : 10;
-    console.log({ buttonNumberMapped });
+
     const skillButtonContainer = this.skillsButtonsContainers[buttonNumberMapped];
 
-    console.log({ skillButtonContainer });
-    const containerAfterRemove = skillButtonContainer.removeAt(0, true);
-
-    console.log({ containerAfterRemove });
+    if (skillButtonContainer.list.length >= 3) {
+      skillButtonContainer.removeAt(0, true);
+    }
   }
 
-  private turnOnHighlightSkillButtonHandler(skill: SkillButton): void {
+  private turnOnHighlightSkillButtonHandler(skillButton: SkillButton): void {
     // TODO: To refactor
-    switch (+skill) {
+    switch (+skillButton) {
       case SkillButton.ONE:
         this.skillsButtonsContainers[0].list.forEach((child) => (child as Phaser.GameObjects.Image).setTint(0x8afbff));
         break;
@@ -112,9 +107,9 @@ export default class UIScene extends Phaser.Scene {
     }
   }
 
-  private turnOffHighlightSkillButtonHandler(skill: SkillButton): void {
+  private turnOffHighlightSkillButtonHandler(skillButton: SkillButton): void {
     // TODO: To refactor
-    switch (+skill) {
+    switch (+skillButton) {
       case SkillButton.ONE:
         this.skillsButtonsContainers[0].list.forEach((child) => (child as Phaser.GameObjects.Image).setTint(0xffffff));
         break;

@@ -121,6 +121,7 @@ export default class PlayerSkillsScene extends Phaser.Scene {
         const { buttonName } = bind;
         const displayText = this.add.dynamicBitmapText(x, y, 'default', buttonName, 8);
         this.container.add(displayText);
+        skill.bind.displayText = displayText;
       }
 
       if (index === 0) {
@@ -141,7 +142,6 @@ export default class PlayerSkillsScene extends Phaser.Scene {
   }
 
   updateSkills(playerSkills: Skill[]): void {
-    console.log('updateSkills');
     this.playerSkills = playerSkills;
     let x = this.skillsStartingPosition.x;
     let y = this.skillsStartingPosition.y;
@@ -205,10 +205,9 @@ export default class PlayerSkillsScene extends Phaser.Scene {
   }
 
   clearSkillBind(skill: Skill): void {
-    console.log('clearSkillBind');
-
     if (skill.bind) {
       eventsCenter.emit(Event.UNBIND_SKILL_ICON, parseInt(skill.bind.buttonName));
+      eventsCenter.emit(Event.UNBIND_SKILL_MECHANICS_FROM_BUTTON, parseInt(skill.bind.buttonName));
     }
 
     skill.bind.displayText.destroy();
@@ -216,20 +215,17 @@ export default class PlayerSkillsScene extends Phaser.Scene {
   }
 
   bindSkillToButton(skill: Skill, buttonNumber: number): void {
-    console.log('bindSkillToButton');
-    console.log({ name: skill.info.name });
-    console.log({ bind: skill.bind });
-    if (skill.bind) {
-      this.clearSkillBind(skill);
-    }
+    if (skill.bind) this.clearSkillBind(skill);
+
     this.clearButtonBindIfInUse(buttonNumber);
-    console.log({ buttonName: buttonNumber });
 
     const { x, y } = skill.graphics.icon;
     const displayText = this.add.dynamicBitmapText(x, y, 'default', buttonNumber.toString(), 8);
     this.container.add(displayText);
     skill.bind = { buttonName: buttonNumber.toString(), displayText };
+
     eventsCenter.emit(Event.BIND_SKILL_ICON, skill.graphics.iconName, buttonNumber);
+    eventsCenter.emit(Event.BIND_SKILL_MECHANICS_TO_BUTTON, skill.mechanics, buttonNumber);
   }
 
   blinkingIndicatingFrame(time: number): void {
@@ -260,7 +256,6 @@ export default class PlayerSkillsScene extends Phaser.Scene {
     const zero = this.keys.zero.isDown;
 
     if (time < this.keyPressLockedUntil) {
-      console.log('return');
       return;
     }
 
@@ -272,7 +267,6 @@ export default class PlayerSkillsScene extends Phaser.Scene {
 
     if (one) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
-      console.log({ skillToBindName: skillToBind.info.name });
       this.bindSkillToButton(skillToBind, 1);
     } else if (two) {
       const skillToBind = this.playerSkills[this.selectedSkillIndex];
